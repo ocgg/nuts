@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ENV VARIABLES ###############################################################
+
 # ROOT_DIR=$(realpath "$(dirname "$0")")
 NOTES_PATH="$HOME/shared/notes/"
 NOTES_BASENAME=$(basename "$NOTES_PATH")
@@ -11,6 +13,9 @@ FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type f -printf "%P\n")
 TERM_WIDTH=$(tput cols)
 # TERM_HEIGHT=$(tput lines)
 
+# FUNCTIONS ###################################################################
+
+# Prints help and exit
 usage_and_exit() {
     echo 'Usage:'
     echo "  $0                  search any note"
@@ -20,15 +25,19 @@ usage_and_exit() {
     exit
 }
 
+# Format the note to not exceed colwidth, and renders markdown
 format_note() {
-    # TODO: interpret markdown (ruby script ?)
+    # TODO: interpret markdown (ruby script ?), if note is markdown
     fmt -s -w $colwidth < "$chosenfile"
 }
 
+# Without arg:  opens fzf to search for any note
+# With arg:     if only one match, prints the note, else opens fzf with query
 find_note() {
-    [ -n "$1" ] && QUERY=$1
-    local choice chosenfile colwidth
-    choice=$(fzf --query "$QUERY" -1 --border=top --border-label="COUCOU" <<< "$FILES")
+    local choice chosenfile colwidth query
+    [ -n "$1" ] && query=$1
+
+    choice=$(fzf --query "$query" -1 --border=top --border-label="COUCOU" <<< "$FILES")
 
     # echo "$choice"
     chosenfile="$NOTES_PATH$choice"
@@ -39,13 +48,14 @@ find_note() {
     echo "$formatted_file"
 }
 
-case $1 in
-    "") find_note;;
-    find | search | f | s) find_note "$2";;
-    help | -h | --help) usage_and_exit;;
-    *) find_note "$1";;
-esac
+# MAIN ########################################################################
 
+case $1 in
+    "")                     find_note;;
+    find | search | f | s)  find_note "$2";;
+    help | -h | --help)     usage_and_exit;;
+    *)                      find_note "$1";;
+esac
 
 # lines_count=$(wc -l <<< "$formatted_file")
 
@@ -56,4 +66,3 @@ esac
 # else
 #     echo "$formatted_file"
 # fi
-
