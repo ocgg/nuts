@@ -2,10 +2,12 @@
 
 # ENV VARIABLES ###############################################################
 
-# ROOT_DIR=$(realpath "$(dirname "$0")")
-# NOTES_PATH="$HOME/shared/notes/"
+# Test notes path
 NOTES_PATH="$HOME/code/nuts/notes/"
+# NOTES_PATH="$HOME/shared/notes/"
 NOTES_BASENAME=$(basename "$NOTES_PATH")
+
+# ROOT=$(realpath "$(dirname "$0")")
 
 FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type f -printf "%P\n")
 DIRS=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P\n")
@@ -26,6 +28,16 @@ usage_and_exit() {
     exit
 }
 
+error_and_exit() {
+    >&2 echo -e "Error: $1"
+    exit
+}
+
+no_note_error() {
+    local msg="\tNo note in $NOTES_PATH\n\tChange NOTE_PATH value or try 'new' argument to create a new note"
+    error_and_exit "$msg"
+}
+
 # FIND & DISPLAY NOTE ###############################################
 
 # Format the note to not exceed colwidth, and renders markdown
@@ -42,7 +54,6 @@ find_note() {
 
     selection=$NOTES_PATH$(fzf --query "$query" -1 --border=top --border-label="COUCOU" <<< "$FILES")
 
-    # echo "$selection"
     # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
 
@@ -101,25 +112,24 @@ ask_new_note_name() {
 # Let the user choose for a directory in NOTES_PATH,
 # then prompt the user for a filename & opens default editor
 new_note() {
-    # get dir
     new_note_dir=$(select_or_create_dir)
-    echo "new note dir: $new_note_dir"
-    # get name
+    # echo "new note dir: $new_note_dir"
     new_note_name=$(ask_new_note_name)
-    echo "new note name: $new_note_dir$new_note_name"
+    # echo "new note name: $new_note_dir$new_note_name"
     new_note_path="$new_note_dir$new_note_name"
 
-    # create file
     touch "$new_note_path"
-    # open default editor
+    # open file with default editor
     $EDITOR "$new_note_path"
 }
 
 # MAIN ########################################################################
 
+
 case $1 in
-    "")                     find_note;;
-    find | search | f | s)  find_note "$2";;
+    "" | find | search | f | s)
+        [ -z "$FILES" ] && no_note_error
+        find_note "$2";;
     help | -h | --help)     usage_and_exit;;
     new)                    new_note;;
     *)                      find_note "$1";;
