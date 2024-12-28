@@ -3,11 +3,12 @@
 # ENV VARIABLES ###############################################################
 
 # ROOT_DIR=$(realpath "$(dirname "$0")")
-NOTES_PATH="$HOME/shared/notes/"
+# NOTES_PATH="$HOME/shared/notes/"
+NOTES_PATH="$HOME/code/nuts/notes/"
 NOTES_BASENAME=$(basename "$NOTES_PATH")
 
 FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type f -printf "%P\n")
-# DIRS=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P\n")
+DIRS=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P\n")
 # DIRS_AND_FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P/\n" -o -type f -printf "%P\n")
 
 TERM_WIDTH=$(tput cols)
@@ -25,27 +26,93 @@ usage_and_exit() {
     exit
 }
 
+# FIND & DISPLAY NOTE ###############################################
+
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
     # TODO: interpret markdown (ruby script ?), if note is markdown
-    fmt -s -w $colwidth < "$chosenfile"
+    fmt -s -w $colwidth < "$selection"
 }
 
-# Without arg:  opens fzf to search for any note
+# Without arg:  opens fzf to search for any note and prints selection
 # With arg:     if only one match, prints the note, else opens fzf with query
 find_note() {
-    local choice chosenfile colwidth query
+    local selection colwidth query
     [ -n "$1" ] && query=$1
 
-    choice=$(fzf --query "$query" -1 --border=top --border-label="COUCOU" <<< "$FILES")
+    selection=$NOTES_PATH$(fzf --query "$query" -1 --border=top --border-label="COUCOU" <<< "$FILES")
 
-    # echo "$choice"
-    chosenfile="$NOTES_PATH$choice"
-    # file_date=$(date -r "$chosenfile" "+%Y-%m-%d %H:%M")
+    # echo "$selection"
+    # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
 
     formatted_file=$(format_note)
     echo "$formatted_file"
+}
+
+# NEW NOTE ##########################################################
+
+create_note_dir() {
+    # ask user for a dir name, with completion from NOTES_PATH
+    local basedir=$PWD
+    cd "$NOTES_PATH" || exit
+    read -e -p "New directory > " new_dir
+    cd "$basedir" || exit
+    
+    # TODO: Check if newdir is valid:
+        # - not a file
+        # - doesn't already exist
+        # - name not blank (?)
+
+    # create dir recursively
+    mkdir -p "$NOTES_PATH$new_dir"
+    
+    selection="$new_dir"
+}
+
+select_or_create_dir() {
+    local fzf_label="New note directory"
+    local fzf_prompt="Select a directory > "
+    local new=">> Create a new directory..."
+    local selection options
+    # Add "create a new dir" to notes directories list
+    options=$(printf "%s\n%s" "$new" "$DIRS")
+
+    selection=$(fzf --border=top --border-label="$fzf_label" --prompt="$fzf_prompt" <<< "$options")
+    # if "create a new dir" selected
+    [ "$selection" == "$new" ] && create_note_dir
+
+    selection="$NOTES_PATH$selection/"
+    echo "$selection"
+}
+
+ask_new_note_name() {
+    local name
+    read -p "New note name > " name
+
+    # TODO: check if name is valid:
+        # - not empty
+
+    # append ".md" to new_note_name if not already present
+    name="${name%.md}.md" 
+    echo "$name"
+}
+
+# Let the user choose for a directory in NOTES_PATH,
+# then prompt the user for a filename & opens default editor
+new_note() {
+    # get dir
+    new_note_dir=$(select_or_create_dir)
+    echo "new note dir: $new_note_dir"
+    # get name
+    new_note_name=$(ask_new_note_name)
+    echo "new note name: $new_note_dir$new_note_name"
+    new_note_path="$new_note_dir$new_note_name"
+
+    # create file
+    touch "$new_note_path"
+    # open default editor
+    $EDITOR "$new_note_path"
 }
 
 # MAIN ########################################################################
@@ -54,6 +121,7 @@ case $1 in
     "")                     find_note;;
     find | search | f | s)  find_note "$2";;
     help | -h | --help)     usage_and_exit;;
+    new)                    new_note;;
     *)                      find_note "$1";;
 esac
 
