@@ -1,3 +1,0 @@
-- add note
-  - choose folder (existing or new)
-  - open text editor

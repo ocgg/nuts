@@ -1,7 +1,7 @@
 - render markdown
-- quicknotes
-- todos
-- note edit (FACILE)
+- quicknotes (1 seul fichier pour des notes en 1 ligne avec la date)
+- todos (1 seul fichier pour lister des tâches)
+- note edit
   - editer la note qu'on vient d'afficher
 - note remove
 
