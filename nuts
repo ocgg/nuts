@@ -16,7 +16,7 @@ DIRS=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P\n")
 TERM_WIDTH=$(tput cols)
 # TERM_HEIGHT=$(tput lines)
 
-# FUNCTIONS ###################################################################
+# UTILITY FUNCTIONS ###########################################################
 
 # Prints help and exit
 usage_and_exit() {
@@ -24,7 +24,7 @@ usage_and_exit() {
     echo "  $0                  search any note"
     echo "  $0 find <query>     search for a note with query, opens it if only 1 found, else opens the search with query"
     echo "  $0 search <query>   alias for 'find'"
-    echo "  $0 <query>          like 'find', for any string that doesn't match any other parameter"
+    echo "  $0 <query>          like 'find', for any query that doesn't match any other possible parameter"
     exit
 }
 
@@ -34,15 +34,16 @@ error_and_exit() {
 }
 
 no_note_error() {
-    local msg="\tNo note in $NOTES_PATH\n\tChange NOTE_PATH value or try 'new' argument to create a new note"
+    local msg="\tNo note in $NOTES_PATH
+    \tChange NOTE_PATH value or try 'new' argument to create a new note"
     error_and_exit "$msg"
 }
 
-# FIND & DISPLAY NOTE ###############################################
+# FIND & DISPLAY NOTE #########################################################
 
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
-    # TODO: interpret markdown (ruby script ?), if note is markdown
+    # TODO: interpret markdown (ruby script ?)
     fmt -s -w $colwidth < "$selection"
 }
 
@@ -61,7 +62,7 @@ find_note() {
     echo "$formatted_file"
 }
 
-# NEW NOTE ##########################################################
+# NEW NOTE ####################################################################
 
 create_note_dir() {
     # ask user for a dir name, with completion from NOTES_PATH
@@ -112,28 +113,33 @@ ask_new_note_name() {
 # Let the user choose for a directory in NOTES_PATH,
 # then prompt the user for a filename & opens default editor
 new_note() {
+    local new_note_dir new_note_name new_note_path
     new_note_dir=$(select_or_create_dir)
     # echo "new note dir: $new_note_dir"
     new_note_name=$(ask_new_note_name)
     # echo "new note name: $new_note_dir$new_note_name"
-    new_note_path="$new_note_dir$new_note_name"
 
+    new_note_path="$new_note_dir$new_note_name"
     touch "$new_note_path"
-    # open file with default editor
+    # open file with default text editor
     $EDITOR "$new_note_path"
 }
 
-# MAIN ########################################################################
-
+# ENTRY POINT #################################################################
 
 case $1 in
     "" | find | search)
         [ -z "$FILES" ] && no_note_error
         find_note "$2";;
-    help | -h | --help)     usage_and_exit;;
-    new)                    new_note;;
-    *)                      find_note "$1";;
+    help | -h | --help)
+        usage_and_exit;;
+    new)
+        new_note;;
+    *)
+        find_note "$1";;
 esac
+
+# I DON'T KNOW YET BUT I THOUGHT IT COULD BE COOL #############################
 
 # lines_count=$(wc -l <<< "$formatted_file")
 

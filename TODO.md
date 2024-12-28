@@ -7,3 +7,5 @@
 
 - pack: empaqueter les notes en db sqlite
 - unpack: créer les fichiers à partir d'une db sqlite
+
+- mais pourquoi j'ai pas fait ça en lua ??
