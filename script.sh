@@ -23,7 +23,7 @@ usage_and_exit() {
     echo 'Usage:'
     echo "  $0                  search any note"
     echo "  $0 find <query>     search for a note with query, opens it if only 1 found, else opens the search with query"
-    echo "                               'search', 'f' and 's' are aliases for find"
+    echo "  $0 search <query>   alias for 'find'"
     echo "  $0 <query>          like 'find', for any string that doesn't match any other parameter"
     exit
 }
@@ -86,8 +86,8 @@ select_or_create_dir() {
     local fzf_prompt="Select a directory > "
     local new=">> Create a new directory..."
     local selection options
-    # Add "create a new dir" to notes directories list
-    options=$(printf "%s\n%s" "$new" "$DIRS")
+    # Add "create a new dir" and "." to notes directories list
+    options=$(printf "%s\n%s\n%s" "$new" "." "$DIRS")
 
     selection=$(fzf --border=top --border-label="$fzf_label" --prompt="$fzf_prompt" <<< "$options")
     # if "create a new dir" selected
@@ -127,7 +127,7 @@ new_note() {
 
 
 case $1 in
-    "" | find | search | f | s)
+    "" | find | search)
         [ -z "$FILES" ] && no_note_error
         find_note "$2";;
     help | -h | --help)     usage_and_exit;;
