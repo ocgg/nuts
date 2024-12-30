@@ -44,7 +44,7 @@ no_note_error() {
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
     # TODO: interpret markdown (ruby script ?)
-    fmt -s -w $colwidth < "$selection"
+    fmt -s -w "$colwidth" < "$1"
 }
 
 # Without arg:  opens fzf to search for any note and prints selection
@@ -54,12 +54,17 @@ find_note() {
     [ -n "$1" ] && query=$1
 
     selection=$NOTES_PATH$(fzf --query "$query" -1 --border=top <<< "$FILES")
+    echo "$selection"
+}
 
+display_note() {
+    local colwidth formatted note
+    note=$(find_note "$1")
     # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
 
-    formatted_file=$(format_note)
-    echo "$formatted_file"
+    formatted=$(format_note "$note")
+    echo "$formatted"
 }
 
 # NEW NOTE ####################################################################
@@ -124,18 +129,34 @@ new_note() {
     $EDITOR "$new_note_path"
 }
 
+delete_note() {
+    local note confirm
+
+    note=$(find_note "$1")
+    echo "This file will be deleted: $note"
+    read -p "Are you sure ? (y/N) > " confirm
+    if [[ "$confirm" == [Yy] ]]; then
+        rm "$note" && echo "File deleted."
+    else
+        echo "Aborted."
+    fi
+}
+
 # ENTRY POINT #################################################################
 
 case $1 in
     "" | find | search)
         [ -z "$FILES" ] && no_note_error
-        find_note "$2"
+        display_note "$2"
         ;;
     new | add) new_note "$2";;
     edit | open) edit_note;;
-    remove | delete) delete_note;;
+    remove | delete) delete_note "$2";;
     help | -h | --help) usage_and_exit;;
-    *) find_note "$1";;
+    *)
+        [ -z "$FILES" ] && no_note_error
+        display_note "$1"
+        ;;
 esac
 
 # I DON'T KNOW YET BUT I THOUGHT IT COULD BE COOL #############################
