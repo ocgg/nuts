@@ -6,6 +6,9 @@
 
 - arg completion
 
+- lastopened: checks
+- divers input checks (new, ..)
+
 - pack: empaqueter les notes en db sqlite
 
 - unpack: créer les fichiers à partir d'une db sqlite

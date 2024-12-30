@@ -189,27 +189,24 @@ edit_note() {
 # ENTRY POINT #################################################################
 
 [ -n "$3" ] && echo "Unknown parameter: $3" && usage_and_exit
-[ "$1" == last ] && set -- "$(cat lastopened)" "$2"
-[ "$2" == last ] && set -- "$1" "$(cat lastopened)"
+
+# 'last' keyword managment
+if   [ "$1" == last ]; then
+    set -- "$(cat lastopened)" "$2"
+elif [ "$2" == last ]; then
+    set -- "$1" "$(cat lastopened)"
+fi
+
+# If no notes
+[[ ! "$1" =~ ^(new|add)$ && -z $FILES ]] && no_note_error
 
 case $1 in
-    "" | find | search)
-        [ -z "$FILES" ] && no_note_error
-        display_note "$2"
-        ;;
-    new | add) new_note "$2";;
-    edit | open)
-        [ -z "$FILES" ] && no_note_error
-        edit_note "$2";;
-    remove | delete)
-        [ -z "$FILES" ] && no_note_error
-        delete_note "$2";;
-    help | -h | --help)
-        usage_and_exit;;
-    *)
-        [ -z "$FILES" ] && no_note_error
-        display_note "$1"
-        ;;
+    "" | find | search)     display_note "$2";;
+    new | add)              new_note "$2";;
+    edit | open)            edit_note "$2";;
+    remove | delete)        delete_note "$2";;
+    help | -h | --help)     usage_and_exit;;
+    *)                      display_note "$1";;
 esac
 
 # I DON'T KNOW YET BUT I THOUGHT IT COULD BE COOL #############################
