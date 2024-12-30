@@ -28,6 +28,7 @@ usage_and_exit() {
     echo "  $0 delete|remove <query>    delete a note"
     echo "  $0 help|-h|--help           show this help"
     echo "  $0 <query>                  like 'find', for any query that doesn't match any other possible parameter"
+    echo "  You can also use 'last' keyword as query, to target the last opened note."
     exit
 }
 
@@ -55,12 +56,14 @@ open_in_editor() {
 
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
+    local colwidth
+    colwidth=$(("$TERM_WIDTH" / 2 - 4))
     # TODO: interpret markdown (ruby script ?)
     fmt -s -w "$colwidth" < "$1"
 }
 
 # Without arg:  opens fzf to search for any note and prints selection
-# With arg:     if only one match, prints the note, else opens fzf with query
+# With arg:     if only one match, get the note, else opens fzf with query
 find_note() {
     local selection colwidth query
     [ -n "$1" ] && query=$1
@@ -70,11 +73,10 @@ find_note() {
 }
 
 display_note() {
-    local colwidth formatted note
+    local formatted note
     note=$(find_note "$1")
-    echo "$note" > "$ROOT/lastopened"
+    echo "${note#"$NOTES_PATH"/}" > "$ROOT/lastopened"
     # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
-    colwidth=$(("$TERM_WIDTH" / 2 - 4))
 
     formatted=$(format_note "$note")
     echo "$formatted"
@@ -129,12 +131,12 @@ ask_new_note_name() {
 new_note() {
     local new_note_dir new_note_name new_note_path
     new_note_dir=$(select_or_create_dir)
-    # echo "new note dir: $new_note_dir"
     # name is $1 if set, else ask
     new_note_name=${1:-$(ask_new_note_name)}
     # append ".md" to new_note_name if not already present
     new_note_name="${new_note_name%.md}.md" 
-    # echo "new note name: $new_note_dir$new_note_name"
+
+    # TODO: check if already exist
 
     new_note_path="$new_note_dir/$new_note_name"
     touch "$new_note_path"
@@ -180,7 +182,6 @@ delete_note() {
 
 edit_note() {
     local note
-
     note=$(find_note "$1")
     open_in_editor "$note"
 }
@@ -188,6 +189,8 @@ edit_note() {
 # ENTRY POINT #################################################################
 
 [ -n "$3" ] && echo "Unknown parameter: $3" && usage_and_exit
+[ "$1" == last ] && set -- "$(cat lastopened)" "$2"
+[ "$2" == last ] && set -- "$1" "$(cat lastopened)"
 
 case $1 in
     "" | find | search)

@@ -4,10 +4,6 @@
 
 - todos (1 seul fichier pour lister des tâches)
 
-- note edit
-
-  - editer la note qu'on vient d'afficher
-
 - arg completion
 
 - pack: empaqueter les notes en db sqlite
