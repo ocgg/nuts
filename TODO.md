@@ -1,9 +1,5 @@
 - render markdown (script ruby pour coloriser & mettre en forme le md)
 
-- quicknotes (1 seul fichier pour des notes en 1 ligne avec la date)
-
-- todos (1 seul fichier pour lister des tâches)
-
 - arg completion
 
 - lastopened: checks
