@@ -39,6 +39,15 @@ no_note_error() {
     error_and_exit "$msg"
 }
 
+open_in_editor() {
+    [ -z "$EDITOR" ] && error_and_exit "EDITOR environment variable is not set."
+
+    case "$EDITOR" in
+      nvim | vim) $EDITOR -c "cd $NOTES_PATH" -c "e $1";;
+      *) $EDITOR "$1";;
+    esac
+}
+
 # FIND & DISPLAY NOTE #########################################################
 
 # Format the note to not exceed colwidth, and renders markdown
@@ -126,7 +135,7 @@ new_note() {
     new_note_path="$new_note_dir$new_note_name"
     touch "$new_note_path"
     # open file with default text editor
-    $EDITOR "$new_note_path"
+    open_in_editor "$new_note_path"
 }
 
 # DELETE ######################################################################
@@ -163,6 +172,15 @@ delete_note() {
     fi
 }
 
+# EDIT ########################################################################
+
+edit_note() {
+    local note
+
+    note=$(find_note "$1")
+    open_in_editor "$note"
+}
+
 # ENTRY POINT #################################################################
 
 case $1 in
@@ -171,11 +189,14 @@ case $1 in
         display_note "$2"
         ;;
     new | add) new_note "$2";;
-    edit | open) edit_note;;
+    edit | open)
+        [ -z "$FILES" ] && no_note_error
+        edit_note "$2";;
     remove | delete)
         [ -z "$FILES" ] && no_note_error
         delete_note "$2";;
-    help | -h | --help) usage_and_exit;;
+    help | -h | --help)
+        usage_and_exit;;
     *)
         [ -z "$FILES" ] && no_note_error
         display_note "$1"
