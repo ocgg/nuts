@@ -53,7 +53,7 @@ find_note() {
     local selection colwidth query
     [ -n "$1" ] && query=$1
 
-    selection=$NOTES_PATH$(fzf --query "$query" -1 --border=top --border-label="COUCOU" <<< "$FILES")
+    selection=$NOTES_PATH$(fzf --query "$query" -1 --border=top <<< "$FILES")
 
     # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
@@ -68,7 +68,7 @@ create_note_dir() {
     # ask user for a dir name, with completion from NOTES_PATH
     local basedir=$PWD
     cd "$NOTES_PATH" || exit
-    read -e -p "New directory > " new_dir
+    read -e -p "New directory name (relative path): " new_dir
     cd "$basedir" || exit
     
     # TODO: Check if newdir is valid:
@@ -83,14 +83,13 @@ create_note_dir() {
 }
 
 select_or_create_dir() {
-    local fzf_label="New note directory"
     local fzf_prompt="Select a directory > "
     local new=">> Create a new directory..."
     local selection options
     # Add "create a new dir" and "." to notes directories list
     options=$(printf "%s\n%s\n%s" "$new" "." "$DIRS")
 
-    selection=$(fzf --border=top --border-label="$fzf_label" --prompt="$fzf_prompt" <<< "$options")
+    selection=$(fzf --border=top --prompt="$fzf_prompt" <<< "$options")
     # if "create a new dir" selected
     [ "$selection" == "$new" ] && create_note_dir
 
@@ -104,9 +103,6 @@ ask_new_note_name() {
 
     # TODO: check if name is valid:
         # - not empty
-
-    # append ".md" to new_note_name if not already present
-    name="${name%.md}.md" 
     echo "$name"
 }
 
@@ -116,7 +112,10 @@ new_note() {
     local new_note_dir new_note_name new_note_path
     new_note_dir=$(select_or_create_dir)
     # echo "new note dir: $new_note_dir"
-    new_note_name=$(ask_new_note_name)
+    # name is $1 if set, else ask
+    new_note_name=${1:-$(ask_new_note_name)}
+    # append ".md" to new_note_name if not already present
+    new_note_name="${new_note_name%.md}.md" 
     # echo "new note name: $new_note_dir$new_note_name"
 
     new_note_path="$new_note_dir$new_note_name"
@@ -130,13 +129,13 @@ new_note() {
 case $1 in
     "" | find | search)
         [ -z "$FILES" ] && no_note_error
-        find_note "$2";;
-    help | -h | --help)
-        usage_and_exit;;
-    new)
-        new_note;;
-    *)
-        find_note "$1";;
+        find_note "$2"
+        ;;
+    new | add) new_note "$2";;
+    edit | open) edit_note;;
+    remove | delete) delete_note;;
+    help | -h | --help) usage_and_exit;;
+    *) find_note "$1";;
 esac
 
 # I DON'T KNOW YET BUT I THOUGHT IT COULD BE COOL #############################
