@@ -129,6 +129,25 @@ new_note() {
     $EDITOR "$new_note_path"
 }
 
+# DELETE ######################################################################
+
+# Checks a note's parent dir on note deletion.
+# If parent dir is NOTES_PATH or is not empty, do nothing
+# else ask to delete the empty dir.
+check_parent_dir() {
+    local note_dir confirm
+    note_dir=$(dirname "$note")/
+    [[ $note_dir == "$NOTES_PATH" || -n "$(ls -A "$note_dir")" ]] && return
+
+    echo "The note's parent dir is now empty: $note_dir"
+    read -p "Remove it too ? (y/N) > " confirm
+    if [[ "$confirm" == [Yy] ]]; then
+        rm -r "$note_dir" && echo "Directory deleted."
+    else
+        echo "Skipped empty directory deletion."
+    fi
+}
+
 delete_note() {
     local note confirm
 
@@ -137,6 +156,8 @@ delete_note() {
     read -p "Are you sure ? (y/N) > " confirm
     if [[ "$confirm" == [Yy] ]]; then
         rm "$note" && echo "File deleted."
+        # if parent dir is empty and is not NOTE_PATH, ask to remove it also
+        check_parent_dir
     else
         echo "Aborted."
     fi
@@ -151,7 +172,9 @@ case $1 in
         ;;
     new | add) new_note "$2";;
     edit | open) edit_note;;
-    remove | delete) delete_note "$2";;
+    remove | delete)
+        [ -z "$FILES" ] && no_note_error
+        delete_note "$2";;
     help | -h | --help) usage_and_exit;;
     *)
         [ -z "$FILES" ] && no_note_error
