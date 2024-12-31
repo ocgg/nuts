@@ -132,7 +132,7 @@ def render_table(raw)
     # column_widths: [nil, 20, 10, 40, 20]
   }
 
-  table.render(:unicode, table_options)
+  table.render(:unicode, table_options) + "\n"
 end
 
 tables = raw_note.scan(/^\s*((?:\|[^|\n]*\n?)+)/).flatten
@@ -144,6 +144,7 @@ end
 # CODE BLOCKS #################################################################
 
 def render_codeblock(lang, content)
+  content.gsub!('"', '\"')
   lang_opt = lang.empty? ? '' : "-l #{lang}"
   highlighted = `bat -fPn --style='grid' --theme="Visual Studio Dark+" #{lang_opt} <<< "#{content}"`
   "#{TAB}#{render_txt(lang, RGB_GRAY)}\n#{highlighted.chomp}"
@@ -171,4 +172,6 @@ codeblocks.each_with_index do |(all, lang, content), i|
   formatted_note.gsub!(id, render_codeblock(lang, content.strip))
 end
 
+puts render_txt("FILE: #{ARGV.first}", RGB_GRAY)
+puts
 puts formatted_note
