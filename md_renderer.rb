@@ -33,6 +33,9 @@ UNDERLINE = 4
 REVERSE = 7
 STRIKE = 9
 
+# CUSTOM
+RGB_GRAY = [38,2,150,150,150]
+
 def render_txt(str, *styles) = "\e[#{styles.join(';')}m" + str + NOCOLOR
 
 def render_txt_nosuffix(str, *styles) = "\e[#{styles.join(';')}m" + str
@@ -46,24 +49,24 @@ def render_title(str)
   # H6 ################################
   if stripped.start_with? '######'
     str = render_txt(str, DIM)
-    "#{TAB}#{str}"
+    "#{TAB}#{str}\n"
   # H5 ################################
   elsif stripped.start_with? '#####'
     str = render_txt(str, BOLD, DIM)
-    "#{TAB}#{str}"
+    "#{TAB}#{str}\n"
   # H4 ################################
   elsif stripped.start_with? '####'
     str = render_txt(str, UNDERLINE)
-    "#{TAB}#{str}"
+    "#{TAB}#{str}\n"
   # H3 ################################
   elsif stripped.start_with? '###'
     str = render_txt(str, BOLD, UNDERLINE)
-    "#{TAB}#{str}"
+    "#{TAB}#{str}\n"
   # H2 ################################
   elsif stripped.start_with? '##'
     downline = '─' * (str.size + 2)
     str = render_txt(str, BOLD)
-    " │ #{str}\n #{TAB}└#{downline}"
+    " │ #{str}\n #{TAB}└#{downline}\n"
   # H1 ################################
   elsif stripped.start_with? '#'
     upline = '┌─' + ('─' * str.size) + '─┐'
@@ -71,7 +74,7 @@ def render_title(str)
     lside = "#{TAB}│"
     rside = '│'
     str = render_txt(str, BOLD)
-    " #{upline}\n #{lside} #{str} #{rside}\n #{downline}"
+    " #{upline}\n #{lside} #{str} #{rside}\n #{downline}\n"
   end
 end
 
@@ -141,7 +144,9 @@ end
 # CODE BLOCKS #################################################################
 
 def render_codeblock(lang, content)
-  `echo "#{content}" | /usr/bin/bat -n --theme="Visual Studio Dark+" -l #{lang}`
+  lang_opt = lang.empty? ? '' : "-l #{lang}"
+  highlighted = `bat -fPn --style='grid' --theme="Visual Studio Dark+" #{lang_opt} <<< "#{content}"`
+  "#{TAB}#{render_txt(lang, RGB_GRAY)}\n#{highlighted.chomp}"
 end
 
 codeblocks = raw_note.scan(/(?<all>```(?<lang>\w*)?(?<content>(.|\n)*?)```)/)
@@ -163,7 +168,7 @@ end.join
 
 codeblocks.each_with_index do |(all, lang, content), i|
   id = "#@!OCGGNUTSCODEBLOCK-#{i}"
-  formatted_note.gsub!(id, render_codeblock(lang, content))
+  formatted_note.gsub!(id, render_codeblock(lang, content.strip))
 end
 
 puts formatted_note

@@ -63,7 +63,7 @@ format_note() {
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
     # TODO: interpret markdown (ruby script ?)
     formatted=$(ruby "$ROOT/md_renderer.rb" "$1")
-    echo "$formatted" | fmt -s -w "$colwidth" 
+    echo "$formatted" # | fmt -s -w "$colwidth" 
 }
 
 # Without arg:  opens fzf to search for any note and prints selection
@@ -84,6 +84,13 @@ display_note() {
 
     formatted=$(format_note "$note")
     echo "$formatted"
+}
+
+cat_note() {
+    local note
+    note=$(find_note "$1")
+    echo "${note#"$NOTES_PATH"/}" > "$ROOT/lastopened"
+    cat "$note"
 }
 
 # NEW NOTE ####################################################################
@@ -221,6 +228,7 @@ case $1 in
         [ -n "$2" ] && new_quicknote "${@:2}"
         display_note quicknotes.md
         ;;
+    cat | raw)              cat_note "$2";;
     help | -h | --help)     usage_and_exit;;
     *)                      display_note "$1";;
 esac
