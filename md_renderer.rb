@@ -1,3 +1,5 @@
+require 'tty-table'
+
 raw_note = File.read(ARGV.first)
 
 NOCOLOR = "\e[0m"
@@ -61,14 +63,15 @@ def render_title(str)
   elsif stripped.start_with? '##'
     downline = '─' * (str.size + 2)
     str = render_txt(str, BOLD)
-    " │ #{str}\n └#{downline}"
+    " │ #{str}\n #{TAB}└#{downline}"
   # H1 ################################
   elsif stripped.start_with? '#'
     upline = '┌─' + ('─' * str.size) + '─┐'
-    downline = '└─' + ('─' * str.size) + '─┘'
-    side = '│'
+    downline = TAB + '└─' + ('─' * str.size) + '─┘'
+    lside = "#{TAB}│"
+    rside = '│'
     str = render_txt(str, BOLD)
-    " #{upline}\n #{side} #{str} #{side}\n #{downline}"
+    " #{upline}\n #{lside} #{str} #{rside}\n #{downline}"
   end
 end
 
@@ -92,17 +95,75 @@ def render_blockquote(str)
   "#{TAB * 2}#{left}#{render_oneline_styles(str)}"
 end
 
-# BLOCK STYLES ################################################################
+# TABLES ######################################################################
+
+def render_table(raw)
+  arr = raw.split("\n").map {|row| row.split('|').map(&:strip).reject(&:empty?)}
+  header_line_indexes =  arr.map.with_index { |row, i| row.join.match(/:?-+:?/) && i }.compact
+  alignments = header_line_indexes.reverse.map { |i| arr.delete_at(i) }.flatten
+  alignments.map! do |s|
+    if s.start_with?(':') && s.end_with?(':') then :center
+    elsif s.end_with?(':') then :right
+    else :left
+    end
+  end
+
+  def separator_indexes_from(header_lines)
+    if header_lines.index(0)
+      header_lines.select(&:positive?).map.with_index { |o, i| o - (i+2) }
+    else
+      header_lines.map.with_index { |o, i| o - (i+1) }
+    end
+  end
+
+  table = TTY::Table.new(header: arr[0], rows: arr[1..])
+  table_options = {
+    alignments:,
+    multiline: true,
+    resize: true,
+    padding: [0, 1, 0, 1],
+    width: 80,
+    border: {
+      separator: separator_indexes_from(header_line_indexes)
+    }
+    # column_widths: [nil, 20, 10, 40, 20]
+  }
+
+  table.render(:unicode, table_options)
+end
+
+tables = raw_note.scan(/^\s*((?:\|[^|\n]*\n?)+)/).flatten
+tables.each do |table|
+  rendered = render_table(table)
+  raw_note.gsub!(table, rendered)
+end
+
+# CODE BLOCKS #################################################################
+
+def render_codeblock(lang, content)
+  `echo "#{content}" | /usr/bin/bat -n --theme="Visual Studio Dark+" -l #{lang}`
+end
+
+codeblocks = raw_note.scan(/(?<all>```(?<lang>\w*)?(?<content>(.|\n)*?)```)/)
+codeblocks.each_with_index do |(all, lang, content), i|
+  id = "#@!OCGGNUTSCODEBLOCK-#{i}"
+  raw_note.gsub!(all, id)
+end
 
 # LINE STYLES #################################################################
 
-formatted_note = raw_note.lines[10..32].map do |line|
-  # TITLE
-  line = if line.strip.start_with? '#'     then render_title(line.chomp)
-  elsif line.strip.start_with? '>'  then render_blockquote(line)
-  else render_oneline_styles(line)
-  end
+formatted_note = raw_note.lines.map do |line|
+  next line if line.start_with?("#@!OCGGNUTSCODEBLOCK-")
+  line =  if line.strip.start_with? '#'     then render_title(line.chomp)
+          elsif line.strip.start_with? '>'  then render_blockquote(line)
+          else render_oneline_styles(line)
+          end
   "#{TAB}#{line}"
+end.join
+
+codeblocks.each_with_index do |(all, lang, content), i|
+  id = "#@!OCGGNUTSCODEBLOCK-#{i}"
+  formatted_note.gsub!(id, render_codeblock(lang, content))
 end
 
 puts formatted_note

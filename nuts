@@ -3,8 +3,8 @@
 # ENV VARIABLES ###############################################################
 
 # Test notes path
-NOTES_PATH="$HOME/code/nuts/notes"
-# NOTES_PATH="$HOME/shared/notes"
+# NOTES_PATH="$HOME/code/nuts/notes"
+NOTES_PATH="$HOME/shared/notes"
 NOTES_BASENAME=$(basename "$NOTES_PATH")
 
 ROOT=$(realpath "$(dirname "$0")")
@@ -59,10 +59,11 @@ open_in_editor() {
 
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
-    local colwidth
+    # local colwidth
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
     # TODO: interpret markdown (ruby script ?)
-    fmt -s -w "$colwidth" < "$1"
+    formatted=$(ruby "$ROOT/md_renderer.rb" "$1")
+    echo "$formatted" | fmt -s -w "$colwidth" 
 }
 
 # Without arg:  opens fzf to search for any note and prints selection
