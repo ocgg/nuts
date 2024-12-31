@@ -8,6 +8,7 @@
 
 ## TODO NEXT
 
+- séparateurs "---" / "\*\*\*"
 - H1 plus jolis (étendus)
 - H2 plus jolis (bg color ?)
 - rendu de listes
@@ -15,7 +16,12 @@
   - à puce
   - checkboxes
 - codeblock: bgcolor ?
+- links variables
 
 ## BUGFIXES TODO
 
-- Tables ne rendent pas bien en cas de cellules vides
+- Les tableaux sont complètement pétés
+
+## TODO DANS LONGTEMPS
+
+- utiliser mdtt pour modifier un tableau
