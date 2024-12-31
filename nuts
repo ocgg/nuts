@@ -21,6 +21,7 @@ TERM_WIDTH=$(tput cols)
 # Prints help and exit
 usage_and_exit() {
     echo 'Usage:'
+    echo
     echo "  $0                          search any note"
     echo "  $0 new|add <name>           create a note with optionnal name"
     echo "  $0 find|search <query>      search for a note with optionnal query, opens it if only 1 found, else opens the search with query"
@@ -31,8 +32,9 @@ usage_and_exit() {
     echo "  $0 quick <string>           add a one-line quicknote with date in quicknotes.md"
     echo "  $0 quick                    display quicknotes"
     echo "  $0 <query>                  like 'find', for any query that doesn't match any other possible parameter"
-    echo "  <query> or <name> is always optionnal."
-    echo "  You can also use 'last' keyword as query, to target the last opened note."
+    echo
+    echo "<query> or <name> is always optionnal."
+    echo "You can also use 'last' keyword as query, to target the last opened note."
     exit
 }
 
