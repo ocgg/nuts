@@ -86,10 +86,12 @@ display_note() {
     echo "$formatted"
 }
 
-cat_note() {
+display_raw_note() {
     local note
     note=$(find_note "$1")
     echo "${note#"$NOTES_PATH"/}" > "$ROOT/lastopened"
+    echo "FILE: $note"
+    echo
     cat "$note"
 }
 
@@ -228,7 +230,7 @@ case $1 in
         [ -n "$2" ] && new_quicknote "${@:2}"
         display_note quicknotes.md
         ;;
-    cat | raw)              cat_note "$2";;
+    cat | raw)              display_raw_note "$2";;
     help | -h | --help)     usage_and_exit;;
     *)                      display_note "$1";;
 esac
