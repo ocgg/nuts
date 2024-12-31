@@ -101,7 +101,7 @@ end
 # TABLES ######################################################################
 
 def render_table(raw)
-  arr = raw.split("\n").map {|row| row.split('|').map(&:strip).reject(&:empty?)}
+  arr = raw.split("\n").map {|row| row.split('|').map(&:strip)[1..]}
   header_line_indexes =  arr.map.with_index { |row, i| row.join.match(/:?-+:?/) && i }.compact
   alignments = header_line_indexes.reverse.map { |i| arr.delete_at(i) }.flatten
   alignments.map! do |s|
@@ -132,7 +132,7 @@ def render_table(raw)
     # column_widths: [nil, 20, 10, 40, 20]
   }
 
-  table.render(:unicode, table_options) + "\n"
+  "#{table.render(:unicode, table_options)}\n"
 end
 
 tables = raw_note.scan(/^\s*((?:\|[^|\n]*\n?)+)/).flatten
