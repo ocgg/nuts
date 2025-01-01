@@ -25,7 +25,13 @@ class MdDoc
 
   private
 
-  def render_txt(str, *styles) = "\e[#{styles.join(';')}m" + str + NOCOLOR
+  def render_txt(str, *styles)
+    "\e[#{styles.join(';')}m" + str + NOCOLOR
+  end
+
+  def to_lines(str, width=TERM_WIDTH)
+    str.chars.each_slice(width).map(&:join)
+  end
 
   def render_title(str)
     title = str.gsub(/^#+\s/, '')
@@ -34,14 +40,14 @@ class MdDoc
     elsif str.start_with?('####')   then render_txt(title, UNDERLINE)
     elsif str.start_with?('###')    then render_txt(title, BOLD, UNDERLINE)
     elsif str.start_with?('##')
-      downline = render_txt('─' * TERM_WIDTH, RGB_GRAY)
+      downline = render_txt('─' * TERM_WIDTH)
       str = render_txt(title, BOLD)
       "#{str}\n#{downline}"
     else
       line = '─' * (TERM_WIDTH - 2)
-      upline = render_txt("┌#{line}┐", RGB_GRAY)
-      downline = render_txt("└#{line}┘", RGB_GRAY)
-      side = render_txt('│', RGB_GRAY)
+      upline = render_txt("┌#{line}┐")
+      downline = render_txt("└#{line}┘")
+      side = render_txt('│')
       str = render_txt(title.center(TERM_WIDTH - 2), BOLD)
       "#{upline}\n#{side}#{str}#{side}\n#{downline}"
     end
@@ -68,8 +74,12 @@ class MdDoc
           # starts with 4 spaces
           # between ```
         # Empty H1 or H2 ? (prints an thin underline separator on github)
+      # PARAGRAPH
       else
-        blocks << { type: :unknown, content: str}
+        str.gsub!(/\n/, ' ')
+        str.squeeze!(' ')
+        str = to_lines(str, TERM_WIDTH).join("\n")
+        blocks << { type: :paragraph, content: str}
       end
     end
     blocks
