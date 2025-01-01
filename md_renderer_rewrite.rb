@@ -16,11 +16,11 @@ class MdDoc
   end
 
   def render
-    @blocks.each do |block|
-      puts "#{block[:content]}\n\n"
+    result = @blocks.map do |block|
+      "#{block[:content]}\n\n"
     end
-    statline = "#{@filepath} (#{@last_modified})"
-    puts render_txt(statline.rjust(TERM_WIDTH), RGB_GRAY)
+    statline = render_txt("#{@filepath} (#{@last_modified})".rjust(TERM_WIDTH), RGB_GRAY)
+    result << statline
   end
 
   private
@@ -78,4 +78,4 @@ end
 
 md_doc = MdDoc.new(ARGV.first)
 
-md_doc.render
+puts md_doc.render
