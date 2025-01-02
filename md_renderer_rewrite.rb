@@ -1,12 +1,15 @@
 require_relative 'md_renderer_lib/renderer'
 
 class MdDoc
+
+  
   def initialize(filepath, renderer)
     @rdr = renderer
     @filepath = filepath
     @raw = File.read(filepath)
     @last_modified = File.mtime(filepath).strftime("%Y-%m-%d %H:%M")
-    @blocks = make_blocks
+    @blocks = []
+    make_blocks
   end
 
   def render
@@ -20,32 +23,36 @@ class MdDoc
 
   private
 
-  def render_title(str) = @rdr.title(str.strip.squeeze(' '))
-  def render_separator = @rdr.separator
-  def render_paragraph(str) = @rdr.paragraph(str)
+  def title_block(str)  = { type: :title, content: @rdr.title(str.strip.squeeze(' ')) }
+  def separator_block   = { type: :separator, content: @rdr.separator}
+  def paragraph_block(str) = { type: :paragraph, content: @rdr.paragraph(str)}
+  def table_block(str) = { type: :paragraph, content: @rdr.table(str)}
+  def code_block(**data) = { type: :code_block, content: @rdr.code_block(**data)}
 
   # Splits raw markdown file at 2 or more newlines
   # return an array of hashes representing blocks with keys :title & :content
   def make_blocks
-    blocks = []
+    title_regex = /\A\#{1,6} .+\Z/
+    separator_regex = /\A(\-|\*){3,}\Z/
+    table_regex = /^\s{0,3}((?:\|[^|\n]*\n?)+)/
+    codeblock_regex = /(?:```(?<lang>\w*)?(?<content>(.|\n)*?)```)/
+
     @raw.split(/(?:\s*\n){2}/) do |str|
-      # TODO: Split into blocks if needed (if dirty markdown style)
+      # TODO: recursively split into blocks if needed (if dirty markdown style)
       # split = str.split("\n")
         # Isolate titles
         # Isolate code blocks (start with 4 spaces or ```)
-
-      if str.match?(/\A\#{1,6} .+\Z/)
-        blocks << { type: :title, content: render_title(str) }
-      elsif str.match?(/\A(\-|\*){3,}\Z/)
-        blocks << { type: :separator, content: render_separator}
-      # CODEBLOCK
-          # starts with 4 spaces
-          # between ```
-      else
-        blocks << { type: :paragraph, content: render_paragraph(str)}
+      
+      block = case str
+      when title_regex      then title_block(str)
+      when separator_regex  then separator_block
+      when table_regex      then table_block(str)
+      when codeblock_regex  then code_block(lang: $1, content: $2)
+      else paragraph_block(str)
       end
+
+      @blocks << block
     end
-    blocks
   end
 end
 

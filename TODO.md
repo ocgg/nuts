@@ -8,9 +8,9 @@
 
 ## TODO NEXT
 
-- Les inline styles imbriqués peuvent être foireuses à cause de `\e[0m`
+- H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/
+- Les inline styles imbriqués peuvent être foireux à cause de `\e[0m`
 - \&nbsp; à la place du dernier espace avant le dernier char d'un titre
-- H2 plus jolis (bg color ?)
 - rendu de listes
   - ordonnée
   - à puce
@@ -30,3 +30,5 @@
 - afficher les longues notes sur 2 colonnes si termwidth > 160
 - Implémenter HTML basique
 - arg completion (note names, cl args)
+- réécrire module Tables,
+- refacto modules InlineBlocks

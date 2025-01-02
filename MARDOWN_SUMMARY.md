@@ -12,20 +12,34 @@
 
 ---
 
-Using two asterisks **this text is bold**.
+Using two asterisks **this text is bold**. Two underscores __work as well__.
 
-Two underscores __work as well__.
+Let's make it *italic now*. You guessed it, _one underscore is also enough_.
 
-Let's make it *italic now*.
-
-You guessed it, _one underscore is also enough_.
-
-Can we combine **_both of that_?** Absolutely.
-
-The same, with ***three stars***
+Can we combine **_both of that_?** Absolutely. The same, with ***three stars***
 
 What if I want to ~~strikethrough~~?
 
-Let's print an `inline code` in this one.
+Let's print an `inline code` in this one. And with ``backticks `in it` ?``
 
 ---
+
+| This is | an actual | Taabeeeeeuuuul |
+|---------|-----------|----------------|
+| With | random | columns |
+| just **to be sure** | *that* it | `works` |
+| And | it | should |
+
+---
+
+```
+{
+  learning: "Markdown",
+  showing: "block code snippet"
+}
+```
+
+```js
+const x = "Block code snippet in JS";
+console.log(x);
+```
