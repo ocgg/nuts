@@ -1,5 +1,3 @@
-- arg completion (note names, cl args)
-
 - lastopened: checks
 - divers input checks (new, ..)
 
@@ -10,10 +8,8 @@
 
 ## TODO NEXT
 
-- Gérer les titres de + de 78 caractères
+- Les inline styles imbriqués peuvent être foireuses à cause de `\e[0m`
 - \&nbsp; à la place du dernier espace avant le dernier char d'un titre
-- séparateurs "---" / "\*\*\*"
-- H1 plus jolis (étendus)
 - H2 plus jolis (bg color ?)
 - rendu de listes
   - ordonnée
@@ -21,6 +17,7 @@
   - checkboxes
 - codeblock: 1ère ligne séparateur = "--[ lang ]--------"
 - codeblock: bgcolor ?
+- inline codeblock avec backticks dedans: ``inline_code(`with backticks`);``
 - links variables
 
 ## BUGFIXES TODO
@@ -32,3 +29,4 @@
 - utiliser mdtt pour modifier un tableau
 - afficher les longues notes sur 2 colonnes si termwidth > 160
 - Implémenter HTML basique
+- arg completion (note names, cl args)

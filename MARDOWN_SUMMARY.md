@@ -1,4 +1,4 @@
-# H1: Main Title Main Title Main Title Main Title Main Title Main Title Main Title Main Title 
+# H1: Main Title
 
 ## H2: Big Title
 
@@ -10,32 +10,22 @@
 
 ###### H6: Is it a title ?
 
-Using two asterisks **this text is bold**.  
+---
 
-Two underscores __work as well__.  
+Using two asterisks **this text is bold**.
 
-Let's make it *italic now*.  
+Two underscores __work as well__.
 
-You guessed it, _one underscore is also enough_.  
+Let's make it *italic now*.
+
+You guessed it, _one underscore is also enough_.
 
 Can we combine **_both of that_?** Absolutely.
 
+The same, with ***three stars***
+
 What if I want to ~~strikethrough~~?
 
-## PARAGRAPHS
+Let's print an `inline code` in this one.
 
-There cannot be # Titles in the ## middle of a paragraph.
-
-This paragraph should display as is
-
-  This indented paragraph should not be indented in output
-
-  Because all lines are stripped           
-
-This line is normal.
-This newline without blank line before should print on the same line as the last one, after a space.
-
-If there is many spaces       in a middle or end of a   paragraph, only    one is printed
-
-
-Many blanklines before or after should print only one.
+---
