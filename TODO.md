@@ -8,6 +8,7 @@
 
 ## TODO NEXT
 
+- to_line_with_style WORD WRAP
 - H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/
 - Les inline styles imbriqués peuvent être foireux à cause de `\e[0m`
 - \&nbsp; à la place du dernier espace avant le dernier char d'un titre

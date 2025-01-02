@@ -38,9 +38,11 @@ class MdDoc
     codeblock_regex = /(?:```(?<lang>[^\n]*?)\n(?<content>(.|\n)*?)```)/
 
     # Need to get codeblocks separately
-    divisions = @raw.split(/(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
-                    .reject { |div| div.match?(/\A\s*\Z/) }
-    divisions.each do |str|
+    divs = @raw.split(/(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
+    # reject divs with only empty spaces (or TODO: get a better regex)
+    divs.reject! { |div| div.match?(/\A\s*\Z/) }
+
+    divs.each do |str|
       # TODO: recursively split into blocks if needed (if dirty markdown style)
       # split = str.split("\n")
         # Isolate titles

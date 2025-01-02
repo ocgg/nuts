@@ -23,8 +23,8 @@ class Renderer
 
   def paragraph(str)
     str = str.strip.gsub(/\n/, ' ').squeeze(' ')
-    str = render_inline_styles(str)
-    to_lines(str, TERM_WIDTH).join("\n")
+    str = render_inline_blocks(str)
+    to_lines_with_style(str, TERM_WIDTH).join("\n")
   end
 
   def separator
@@ -36,7 +36,7 @@ class Renderer
   end
   
   def code_block(**data)
-    render_code_block(**data)
+    render_codeblock(**data)
   end
 
   def statline(filepath, last_modified)
@@ -46,20 +46,51 @@ class Renderer
 
   private
 
-    def render_txt(str, *styles)
-      "\e[#{styles.join(';')}m" + str + NOCOLOR
+  def render_txt(str, *styles)
+    "\e[#{styles.join(';')}m" + str + NOCOLOR
+  end
+
+  def to_lines(str, width=TERM_WIDTH, word_wrap=true)
+    if word_wrap
+      str.scan(/\S.{0,#{width-2}}\S(?=\s|$)|\S+/)
+    else
+      str.chars.each_slice(width).map(&:join)
     end
+  end
 
-    def to_lines(str, width=TERM_WIDTH, word_wrap = true)
-      # Check if there are escaping sequences and adapt width
-      esc_seqs = str.scan(/\e\[[\d;]*m/)
-      esc_seqs_width = esc_seqs.join.size
-      width = TERM_WIDTH + esc_seqs_width
+  # TODO: Like to_lines, but manage escape sequences
+  def to_lines_with_style(str, width=TERM_WIDTH, word_wrap = true)
+    chunks = str.split(/(\e\[[\d;]*m)/)
 
-      if word_wrap
-        str.scan(/\S.{0,#{width-2}}\S(?=\s|$)|\S+/)
-      else
-        str.chars.each_slice(width).map(&:join)
+    seq_stack = []
+    count = 0
+    line = ""
+    lines = []
+
+    chunks.each do |chunk|
+      next if chunk.empty?
+      is_reset = chunk.match?(/\e\[0m/)
+      is_seq = chunk.match?(/\e\[[\d;]*m/)
+
+      seq_stack << chunk if is_seq
+      seq_stack = [] if is_reset
+      next line += chunk if is_seq || is_reset
+
+      chunk.each_char do |char|
+        if count == width || char == "\n"
+          line += "\e\[0m"  # Reset styles (because one day: columns!)
+          lines << line
+          line = seq_stack.reverse.join # Start new line with undergoing style
+          count = 0
+        end
+        line += char unless char == "\n" || count == 0 && char == ' '
+        count += 1
       end
     end
+
+    line += "\e\[0m"
+    lines << line
+
+    lines
+  end
 end

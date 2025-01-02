@@ -3,7 +3,7 @@ require_relative 'styles'
 module InlineBlocks
   include Styles
 
-  def regex_for_inline_style(*syms)
+  def regex_for_inline_block(*syms)
     regs = syms.map do |sym|
       open = sym.gsub(/./) { |char| "\\" + char }
       close = sym.reverse.gsub(/./) { |char| "\\" + char }
@@ -12,8 +12,8 @@ module InlineBlocks
     /(#{regs.join('|')})/
   end
 
-  def inline_style(str, syms, *styles)
-    regexp = regex_for_inline_style(*syms)
+  def inline_block(str, syms, *styles)
+    regexp = regex_for_inline_block(*syms)
     spans = str.scan(regexp).flatten
 
     spans.each do |span|
@@ -29,13 +29,13 @@ module InlineBlocks
     str
   end
 
-  def bold_italic(str) = inline_style(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
-  def bold(str) = inline_style(str, ["**", "__"], BOLD)
-  def stroke(str) = inline_style(str, ["~~"], STRIKE)
-  def italic(str) = inline_style(str, ["*", "_"], ITALIC)
-  def inline_codeblock(str) = inline_style(str, ["`"], REVERSE)
+  def bold_italic(str) = inline_block(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
+  def bold(str) = inline_block(str, ["**", "__"], BOLD)
+  def stroke(str) = inline_block(str, ["~~"], STRIKE)
+  def italic(str) = inline_block(str, ["*", "_"], ITALIC)
+  def inline_codeblock(str) = inline_block(str, ["`"], REVERSE)
 
-  def render_inline_styles(str)
+  def render_inline_blocks(str)
     str = bold_italic(str)
     str = bold(str)
     str = stroke(str)
