@@ -1,11 +1,6 @@
-require_relative 'md_renderer_lib/modules/styles'
 require_relative 'md_renderer_lib/renderer'
 
 class MdDoc
-  include Styles
-
-  TERM_WIDTH = `tput cols`.to_i > 80 ? 80 : `tput cols`.to_i
-
   def initialize(filepath, renderer)
     @rdr = renderer
     @filepath = filepath

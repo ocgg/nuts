@@ -5,21 +5,6 @@ class Renderer
   include Styles
   include Titles
 
-  def separator
-    render_txt('━' * TERM_WIDTH, RGB_GRAY)
-  end
-
-  def paragraph(str)
-    str = str.strip.gsub(/\n/, ' ').squeeze(' ')
-    str = render_inline_styles(str)
-    str = to_lines(str, TERM_WIDTH).join("\n")
-  end
-
-  def statline(filepath, last_modified)
-    statline = "#{filepath} (#{last_modified})"
-    render_txt(statline.rjust(TERM_WIDTH), RGB_GRAY)
-  end
-
   def title(str)
     if    str.start_with?('###### ')  then h6(str)
     elsif str.start_with?('##### ')   then h5(str)
@@ -28,6 +13,21 @@ class Renderer
     elsif str.start_with?('## ')      then h2(str)
     elsif str.start_with?('# ')       then h1(str)
     end
+  end
+
+  def paragraph(str)
+    str = str.strip.gsub(/\n/, ' ').squeeze(' ')
+    str = render_inline_styles(str)
+    str = to_lines(str, TERM_WIDTH).join("\n")
+  end
+
+  def separator
+    render_txt('━' * TERM_WIDTH, RGB_GRAY)
+  end
+
+  def statline(filepath, last_modified)
+    statline = "#{filepath} (#{last_modified})"
+    render_txt(statline.rjust(TERM_WIDTH), RGB_GRAY)
   end
 
   private
@@ -49,16 +49,18 @@ class Renderer
     end
   end
 
-  def inline_style(str, syms, *styles)
-    # get regex for each sym & compute final regex
+  def regex_for_inline_style(*syms)
     regs = syms.map do |sym|
       open = sym.gsub(/./) { |char| "\\" + char }
       close = sym.reverse.gsub(/./) { |char| "\\" + char }
       /(?:\w#{open}\w|\W#{open}\w|\W#{open}\W).*?(?:\w#{close}\w|\w#{close}\W|\W#{close}\W|(?:\w|\W)#{close}$)/
     end
-    final_reg = /(#{regs.join('|')})/
+    /(#{regs.join('|')})/
+  end
 
-    spans = str.scan(final_reg).flatten
+  def inline_style(str, syms, *styles)
+    regexp = regex_for_inline_style(*syms)
+    spans = str.scan(regexp).flatten
 
     spans.each do |span|
       signs = syms.join.chars.uniq
@@ -73,12 +75,18 @@ class Renderer
     str
   end
 
+  def bold_italic(str) = inline_style(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
+  def bold(str) = inline_style(str, ["**", "__"], BOLD)
+  def stroke(str) = inline_style(str, ["~~"], STRIKE)
+  def italic(str) = inline_style(str, ["*", "_"], ITALIC)
+  def inline_codeblock(str) = inline_style(str, ["`"], REVERSE)
+
   def render_inline_styles(str)
-    str = inline_style(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
-    str = inline_style(str, ["**", "__"], BOLD)
-    str = inline_style(str, ["~~"], STRIKE)
-    str = inline_style(str, ["*", "_"], ITALIC)
-    str = inline_style(str, ["`"], REVERSE) # Inline code blocks
+    str = bold_italic(str)
+    str = bold(str)
+    str = stroke(str)
+    str = italic(str)
+    str = inline_codeblock(str)
     str
   end
 end
