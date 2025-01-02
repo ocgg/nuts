@@ -13,14 +13,15 @@ module CodeBlocks
   end
 
   def render_code_block(**data) 
-    content = data[:content].strip.gsub!('"', '\"')
+    content = data[:content].strip.gsub('"', '\"')
     lang = data[:lang]
     lang_opt = lang.empty? ? '' : "-l #{lang}"
+    bat_opts = "-fP --style=snip --theme='Visual Studio Dark+' #{lang_opt}"
 
     upline = code_block_separator(lang)
     downline = code_block_separator
-    code = `bat -fP --style=snip --theme="Visual Studio Dark+" #{lang_opt} <<< "#{content}"`
+    code = `bat #{bat_opts} <<< "#{content}"`.chomp
 
-    "#{upline}\n#{code.chomp}\n#{downline}"
+    "#{upline}\n#{code}\n#{downline}"
   end
 end
