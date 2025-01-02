@@ -22,6 +22,7 @@
 
 ## BUGFIXES TODO
 
+- les inline styles matchent /* dsfsdf */
 - Les tableaux sont complètement pétés
 
 ## TODO DANS LONGTEMPS
