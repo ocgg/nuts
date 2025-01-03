@@ -33,7 +33,7 @@ module InlineBlocks
   def bold(str) = inline_block(str, ["**", "__"], BOLD)
   def stroke(str) = inline_block(str, ["~~"], STRIKE)
   def italic(str) = inline_block(str, ["*", "_"], ITALIC)
-  def inline_codeblock(str) = inline_block(str, ["`"], REVERSE)
+  def inline_codeblock(str) = inline_block(str, ["`"], Styles::RGB_BG_DARKGRAY)
 
   def render_inline_blocks(str)
     str = bold_italic(str)

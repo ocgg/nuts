@@ -28,7 +28,7 @@ class MdDoc
   def paragraph_block(str) = { type: :paragraph, content: @rdr.paragraph(str) }
   def table_block(str) = { type: :paragraph, content: @rdr.table(str) }
   def code_block(**data) = { type: :code_block, content: @rdr.code_block(**data) }
-  def unord_list_block(str) = { type: :paragraph, content: @rdr.unordered_list(str) }
+  def unord_list_block(str) = { type: :unord_list, content: @rdr.unordered_list(str) }
 
   # Splits raw markdown file at 2 or more newlines
   # return an array of hashes representing blocks with keys :title & :content
@@ -39,7 +39,7 @@ class MdDoc
     codeblock_regex = /(?:```(?<lang>[^\n]*?)\n(?<content>(.|\n)*?)```)/
     unord_list_regex = /((?:\s*- .*(?:\n.+)*(?:\n+|$))+)/
 
-    pp divs = @raw.split(/#{unord_list_regex}|(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
+    divs = @raw.split(/#{unord_list_regex}|(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
     # reject divs with only empty spaces (or TODO: get a better regex)
     divs.reject! { |div| div.match?(/\A\s*\Z/) }
 
