@@ -23,11 +23,13 @@
 
 ## BUGFIXES TODO
 
-- les inline styles matchent /* dsfsdf */
+- les inline styles matchent /_ dsfsdf _/
 - Les tableaux sont complètement pétés
 
 ## TODO DANS LONGTEMPS
 
+- mettre un message si bat/ruby/tty-table pas installé
+- utiliser une alternative native pour bat (chépucomment source truc)
 - utiliser mdtt pour modifier un tableau
 - afficher les longues notes sur 2 colonnes si termwidth > 160
 - Implémenter HTML basique

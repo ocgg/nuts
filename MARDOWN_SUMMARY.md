@@ -43,3 +43,23 @@ Let's print an `inline code` in this one. And with ``backticks `in it` ?``
 const x = "Block code snippet in JS";
 console.log(x);
 ```
+
+---
+
+Ceci est un paragraphe
+
+- Ceci est une liste
+  -Ceci est concaténé à la ligne précédente
+Ceci est concaténé à la ligne précédente,
+  -ça aussi
+- Ceci est la suite de la même liste
+- VOilà
+
+  - Cette sublist aussi ?
+
+- La même liste
+
+blabla
+
+- mais ça c'est juste une nouvelle liste
+

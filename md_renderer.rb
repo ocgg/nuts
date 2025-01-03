@@ -24,10 +24,11 @@ class MdDoc
   private
 
   def title_block(str)  = { type: :title, content: @rdr.title(str.strip.squeeze(' ')) }
-  def separator_block   = { type: :separator, content: @rdr.separator}
-  def paragraph_block(str) = { type: :paragraph, content: @rdr.paragraph(str)}
-  def table_block(str) = { type: :paragraph, content: @rdr.table(str)}
-  def code_block(**data) = { type: :code_block, content: @rdr.code_block(**data)}
+  def separator_block   = { type: :separator, content: @rdr.separator }
+  def paragraph_block(str) = { type: :paragraph, content: @rdr.paragraph(str) }
+  def table_block(str) = { type: :paragraph, content: @rdr.table(str) }
+  def code_block(**data) = { type: :code_block, content: @rdr.code_block(**data) }
+  def unord_list_block(str) = { type: :paragraph, content: @rdr.unordered_list(str) }
 
   # Splits raw markdown file at 2 or more newlines
   # return an array of hashes representing blocks with keys :title & :content
@@ -36,9 +37,9 @@ class MdDoc
     separator_regex = /\A(\-|\*){3,}\Z/
     table_regex = /^\s{0,3}((?:\|[^|\n]*\n?)+)/
     codeblock_regex = /(?:```(?<lang>[^\n]*?)\n(?<content>(.|\n)*?)```)/
+    unord_list_regex = /((?:\s*- .*(?:\n.+)*(?:\n+|$))+)/
 
-    # Need to get codeblocks separately
-    divs = @raw.split(/(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
+    pp divs = @raw.split(/#{unord_list_regex}|(```(?:.|\n)*?```)|(?:\s*?\n){2}/)
     # reject divs with only empty spaces (or TODO: get a better regex)
     divs.reject! { |div| div.match?(/\A\s*\Z/) }
 
@@ -49,6 +50,7 @@ class MdDoc
         # Isolate code blocks (start with 4 spaces or ```)
 
       block = case str
+      when unord_list_regex then unord_list_block(str)
       when codeblock_regex  then code_block(lang: $1, content: $2)
       when title_regex      then title_block(str)
       when separator_regex  then separator_block

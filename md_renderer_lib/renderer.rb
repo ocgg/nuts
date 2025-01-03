@@ -27,16 +27,12 @@ class Renderer
     to_lines_with_style(str, TERM_WIDTH).join("\n")
   end
 
-  def separator
-    render_txt('━' * TERM_WIDTH, RGB_GRAY)
-  end
+  def separator = render_txt('━' * TERM_WIDTH, RGB_GRAY)
+  def table(str) = render_table(str)
+  def code_block(**data) = render_codeblock(**data)
 
-  def table(str)
-    render_table(str)
-  end
-  
-  def code_block(**data)
-    render_codeblock(**data)
+  def unordered_list(str)
+    render_unordered_list(str)
   end
 
   def statline(filepath, last_modified)
@@ -45,6 +41,19 @@ class Renderer
   end
 
   private
+  
+  def render_unordered_list(str)
+    arr = str.strip.squeeze("\n").split("\n")
+    clean_str = arr.reduce('') do |acc, s|
+      next s if acc.empty?
+
+      stripped = s.strip
+      stripped.match?(/^- /) ? "#{acc}\n#{s}" : "#{acc} #{stripped}"
+    end
+    # TODO: round here: manage list hierarchy
+    clean_str = render_inline_blocks(clean_str)
+    to_lines_with_style(clean_str).join("\n")
+  end
 
   def render_txt(str, *styles)
     "\e[#{styles.join(';')}m" + str + NOCOLOR
@@ -69,12 +78,19 @@ class Renderer
 
     chunks.each do |chunk|
       next if chunk.empty?
+
       is_reset = chunk.match?(/\e\[0m/)
       is_seq = chunk.match?(/\e\[[\d;]*m/)
 
-      seq_stack << chunk if is_seq
-      seq_stack = [] if is_reset
-      next line += chunk if is_seq || is_reset
+      if is_seq
+        seq_stack << chunk 
+        line += chunk
+        next 
+      elsif is_reset
+        seq_stack = []
+        line += chunk
+        next
+      end
 
       chunk.each_char do |char|
         if count == width || char == "\n"
