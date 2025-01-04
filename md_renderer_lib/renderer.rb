@@ -67,7 +67,7 @@ class Renderer
   #   {
   #     bg_color: {
   #       seq: "",    # escape sequence corresponding to bg style e.g '\e[48;2;0;0;0m'
-  #       fill = true # fill full line width with bg color if true
+  #       fill = BOOL # fill full line width with bg color if true
   #     },
   #     pad_x: 0, # padding value for left & right
   #     pad_y: 0  # padding value fot up & down
@@ -79,7 +79,7 @@ class Renderer
     # TODO: better opts managment
     bg_color = opts[:bg_color] || {}
     bg_seq = bg_color[:seq] || ""
-    bg_fill = bg_color[:fill] || true
+    bg_fill = bg_color[:fill]
     padx = opts[:pad_x] || 0
     pady = opts[:pad_y] || 0
     code = opts[:code] || false

@@ -23,7 +23,7 @@ module CodeBlocks
 
     bgcol = esc_seq_from(CODE_BG)
     opts = {
-      bg_color: {seq: bgcol, fill: false},
+      bg_color: {seq: bgcol, fill: true},
       pad_x: 2,
       code: true
     }
