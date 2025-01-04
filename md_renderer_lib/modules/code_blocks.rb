@@ -25,7 +25,7 @@ module CodeBlocks
     opts = {
       bg_color: {seq: bgcol, fill: true},
       pad_x: 2,
-      code: true
+      keep_indent: true
     }
     code = to_lines_with_style(code, **opts).join("\n")
 

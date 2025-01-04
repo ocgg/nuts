@@ -71,7 +71,7 @@ class Renderer
   #     },
   #     pad_x: 0, # padding value for left & right
   #     pad_y: 0  # padding value fot up & down
-  #     code: false # keeps indentation if true
+  #     keep_indent: false # keeps whitespaces at start of lines if true
   #   }
   def to_lines_with_style(str, width = TERM_WIDTH, **opts)
     chunks = str.split(/(\e\[[\d;]*m)/)
@@ -82,7 +82,7 @@ class Renderer
     bg_fill = bg_color[:fill]
     padx = opts[:pad_x] || 0
     pady = opts[:pad_y] || 0
-    code = opts[:code] || false
+    keep_indent = opts[:keep_indent] || false
 
     width -= padx * 2
     lines = []
@@ -127,7 +127,7 @@ class Renderer
           count = 0
         end
         next if char == "\n"
-        unless code
+        unless keep_indent
           next if count == 0 && char == " "
         end
 
