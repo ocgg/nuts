@@ -8,13 +8,11 @@ NOTES_PATH="$HOME/shared/notes"
 NOTES_BASENAME=$(basename "$NOTES_PATH")
 
 ROOT=$(realpath "$(dirname "$0")")
+LASTOPENED_PATH="$ROOT/lastopened"
 
 FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type f -printf "%P\n")
 DIRS=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P\n")
 # DIRS_AND_FILES=$(find "$NOTES_PATH" ! -name "$NOTES_BASENAME" -type d -printf "%P/\n" -o -type f -printf "%P\n")
-
-TERM_WIDTH=$(tput cols)
-# TERM_HEIGHT=$(tput lines)
 
 # UTILITY FUNCTIONS ###########################################################
 
@@ -52,7 +50,7 @@ no_note_error() {
 open_in_editor() {
     [ -z "$EDITOR" ] && error_and_exit "EDITOR environment variable is not set."
 
-    echo "${1#"$NOTES_PATH"/}" > "$ROOT/lastopened"
+    echo "${1#"$NOTES_PATH"/}" > "$LASTOPENED_PATH"
     case "$EDITOR" in
       nvim | vim) $EDITOR -c "cd $NOTES_PATH" -c "e $1";;
       *) $EDITOR "$1";;
@@ -63,17 +61,15 @@ open_in_editor() {
 
 # Format the note to not exceed colwidth, and renders markdown
 format_note() {
-    # local colwidth
-    colwidth=$(("$TERM_WIDTH" / 2 - 4))
     rdr_path="$ROOT/md_renderer_lib/md_renderer.rb"
-    formatted=$(ruby "$rdr_path" render_with_status_line "$1")
+    formatted=$(ruby "${rdr_path#"$NOTES_PATH"/}" render_with_status_line "$1")
     echo "$formatted" # | fmt -s -w "$colwidth" 
 }
 
 # Without arg:  opens fzf to search for any note and prints selection
 # With arg:     if only one match, get the note, else opens fzf with query
 find_note() {
-    local selection colwidth query
+    local selection query
     [ -n "$1" ] && query=$1
 
     selection=$NOTES_PATH/$(fzf --query "$query" -1 --border=top <<< "$FILES")
@@ -83,7 +79,7 @@ find_note() {
 display_note() {
     local formatted note
     note=$(find_note "$1")
-    echo "${note#"$NOTES_PATH"/}" > "$ROOT/lastopened"
+    echo "${note#"$NOTES_PATH"/}" > "$LASTOPENED_PATH"
     # file_date=$(date -r "$selection" "+%Y-%m-%d %H:%M")
 
     formatted=$(format_note "$note")
@@ -93,7 +89,7 @@ display_note() {
 display_raw_note() {
     local note
     note=$(find_note "$1")
-    echo "${note#"$NOTES_PATH"/}" > "$ROOT/lastopened"
+    echo "${note#"$NOTES_PATH"/}" > "$LASTOPENED_PATH"
     echo "FILE: $note"
     echo
     cat "$note"
@@ -217,9 +213,9 @@ new_quicknote() {
 
 # 'last' keyword managment
 if   [ "$1" == last ]; then
-    set -- "$(cat lastopened)" "$2"
+    set -- "$(cat "$LASTOPENED_PATH")" "$2"
 elif [ "$2" == last ]; then
-    set -- "$1" "$(cat lastopened)"
+    set -- "$1" "$(cat "$LASTOPENED_PATH")"
 fi
 
 # If no notes
@@ -238,15 +234,3 @@ case $1 in
     help | -h | --help)     usage_and_exit;;
     *)                      display_note "$1";;
 esac
-
-# I DON'T KNOW YET BUT I THOUGHT IT COULD BE COOL #############################
-
-# lines_count=$(wc -l <<< "$formatted_file")
-
-# echo $lines_count, $TERM_HEIGHT
-
-# if (("$lines_count" > "$TERM_HEIGHT" - 1)); then
-#     pr --columns 2 -w "$TERM_WIDTH" -l "$TERM_HEIGHT" -D "Last modified: $file_date" <<< "$formatted_file"
-# else
-#     echo "$formatted_file"
-# fi
