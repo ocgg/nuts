@@ -1,11 +1,11 @@
-require_relative 'styles'
+require_relative "styles"
 
 module Lists
   include Styles
 
-  def render_unordered_list(str)
+  def render_unord_list(str)
     arr = str.strip.squeeze("\n").split("\n")
-    clean_str = arr.reduce('') do |acc, s|
+    clean_str = arr.reduce("") do |acc, s|
       next s if acc.empty?
 
       stripped = s.strip
