@@ -65,8 +65,8 @@ open_in_editor() {
 format_note() {
     # local colwidth
     colwidth=$(("$TERM_WIDTH" / 2 - 4))
-    # TODO: interpret markdown (ruby script ?)
-    formatted=$(ruby "$ROOT/md_renderer.rb" "$1")
+    rdr_path="$ROOT/md_renderer_lib/md_renderer.rb"
+    formatted=$(ruby "$rdr_path" render_with_status_line "$1")
     echo "$formatted" # | fmt -s -w "$colwidth" 
 }
 
