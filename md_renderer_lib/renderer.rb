@@ -62,27 +62,42 @@ class Renderer
     end
   end
 
-  # TODO: Like to_lines, but manage escape sequences
+  # Like to_lines, but ignore escape sequences in string width
   # Possible opts:
-  #   { bg_color: { seq: '', fill = true }
-  #     seq: escape sequence corresponding to bg style e.g '\e[48;2;0;0;0m'
-  #     fill: fill entire term width with bg color if true
+  #   {
+  #     bg_color: {
+  #       seq: "",    # escape sequence corresponding to bg style e.g '\e[48;2;0;0;0m'
+  #       fill = true # fill full line width with bg color if true
+  #     },
+  #     pad_x: 0, # padding value for left & right
+  #     pad_y: 0  # padding value fot up & down
+  #     code: false # keeps indentation if true
   #   }
-  def to_lines_with_style(str, **opts)
+  def to_lines_with_style(str, width = TERM_WIDTH, **opts)
     chunks = str.split(/(\e\[[\d;]*m)/)
 
     # TODO: better opts managment
-    opts.default = {}
-    bg_color = opts[:bg_color]
+    bg_color = opts[:bg_color] || {}
     bg_seq = bg_color[:seq] || ""
     bg_fill = bg_color[:fill] || true
+    padx = opts[:pad_x] || 0
+    pady = opts[:pad_y] || 0
+    code = opts[:code] || false
 
-    width = TERM_WIDTH
-    seq_stack = []
-    count = 0
-    line = bg_seq
+    width -= padx * 2
     lines = []
 
+    seq_stack = []
+    count = 0
+    # line = bg_seq
+    line = bg_seq + (" " * padx)
+
+    pady.positive? && pady.times do
+      padline = bg_fill ? line + " " * (width + padx) + NOCOLOR : ""
+      lines << padline
+    end
+
+    # chunks are either escape sequences, either text strings
     chunks.each do |chunk|
       next if chunk.empty?
 
@@ -100,25 +115,36 @@ class Renderer
       end
 
       chunk.each_char do |char|
+        # If end of line
         if count == width || char == "\n"
-          line += " " * (width - count) if bg_fill && count < width
-          line += "\e[0m" # Reset styles (because one day: columns!)
+          # fill with bg color
+          line += " " * (width - count + padx) if bg_fill
+          # Reset styles at end of line (for future columns)
+          line += "\e[0m"
           lines << line
-          # Start new line with undergoing style & opts styles
-          line = seq_stack.reverse.join + bg_seq
+          # Reset new line, with undergoing style & opts styles
+          line = seq_stack.reverse.join + bg_seq + (" " * padx)
           count = 0
         end
-        # unless char == "\n" || (count == 0 && char == " ")
-        if char != "\n" || (count != 0 && char != " ")
-          line += char
-          count += 1
+        next if char == "\n"
+        unless code
+          next if count == 0 && char == " "
         end
+
+        line += char
+        count += 1
       end
     end
 
-    line += " " * (width - count) if bg_fill && count < width
+    line += " " * (width - count + padx) if bg_fill && count < width
     line += "\e[0m"
     lines << line
+
+    pady.positive? && pady.times do
+      line = bg_seq + (" " * padx)
+      padline = bg_fill ? line + " " * (width + padx) + NOCOLOR : ""
+      lines << padline
+    end
 
     lines
   end

@@ -87,7 +87,11 @@ class MdDoc
       id = data.find_index { |match| !match.nil? }
       type = types[id]
       content = data[id]
-      (type == :codeblock) ? {type:, all: data[id], lang: data[id + 1], content: data[id + 2]} : {type:, content:}
+      if type == :codeblock
+        {type:, all: data[id], lang: data[id + 1], content: data[id + 2]}
+      else
+        {type:, content:}
+      end
     end
   end
 end

@@ -8,6 +8,7 @@
 
 ## TODO NEXT
 
+- lists indenting & style
 - tolineswithstyle opts: GARDER LES ESPACES EN DEBUT DE LIGNE DANS BLOCKCODE
 - to_line_with_style WORD WRAP
 - H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/
@@ -15,10 +16,7 @@
 - \&nbsp; à la place du dernier espace avant le dernier char d'un titre
 - rendu de listes
   - ordonnée
-  - à puce
   - checkboxes
-- codeblock: 1ère ligne séparateur = "--[ lang ]--------"
-- codeblock: bgcolor ?
 - inline codeblock avec backticks dedans: ``inline_code(`with backticks`);``
 - links variables
 
@@ -29,6 +27,7 @@
 
 ## TODO DANS LONGTEMPS
 
+- TESTS: ça devrait être facile à écrire.
 - mettre un message si bat/ruby/tty-table pas installé
 - utiliser une alternative native pour bat (chépucomment source truc)
 - utiliser mdtt pour modifier un tableau
