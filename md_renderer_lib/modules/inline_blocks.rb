@@ -1,4 +1,4 @@
-require_relative 'styles'
+require_relative "styles"
 
 module InlineBlocks
   include Styles
@@ -9,7 +9,7 @@ module InlineBlocks
       close = sym.reverse.gsub(/./) { |char| "\\" + char }
       /(?:\w#{open}\w|\W#{open}\w|\W#{open}\W).*?(?:\w#{close}\w|\w#{close}\W|\W#{close}\W|(?:\w|\W)#{close}$)/
     end
-    /(#{regs.join('|')})/
+    /(#{regs.join("|")})/
   end
 
   def inline_block(str, syms, *styles)
@@ -30,9 +30,13 @@ module InlineBlocks
   end
 
   def bold_italic(str) = inline_block(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
+
   def bold(str) = inline_block(str, ["**", "__"], BOLD)
+
   def stroke(str) = inline_block(str, ["~~"], STRIKE)
+
   def italic(str) = inline_block(str, ["*", "_"], ITALIC)
+
   def inline_codeblock(str) = inline_block(str, ["`"], Styles::RGB_BG_DARKGRAY)
 
   def render_inline_blocks(str)
@@ -40,7 +44,6 @@ module InlineBlocks
     str = bold(str)
     str = stroke(str)
     str = italic(str)
-    str = inline_codeblock(str)
-    str
+    inline_codeblock(str)
   end
 end

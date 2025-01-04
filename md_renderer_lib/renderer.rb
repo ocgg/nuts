@@ -26,7 +26,7 @@ class Renderer
   def paragraph(str)
     str = str.strip.tr("\n", " ").squeeze(" ")
     str = render_inline_blocks(str)
-    to_lines_with_style(str).join("\n")
+    to_lines_with_style(str, word_wrap: true).join("\n")
   end
 
   def separator = render_txt("━" * TERM_WIDTH, RGB_GRAY)
@@ -62,6 +62,8 @@ class Renderer
     end
   end
 
+  # TO LINES WITH STYLES ######################################################
+
   # Like to_lines, but ignore escape sequences in string width
   # Possible opts:
   #   {
@@ -72,6 +74,7 @@ class Renderer
   #     pad_x: 0, # padding value for left & right
   #     pad_y: 0  # padding value fot up & down
   #     keep_indent: false # keeps whitespaces at start of lines if true
+  #     word_wrap: false # word wrap
   #   }
   def to_lines_with_style(str, width = TERM_WIDTH, **opts)
     chunks = str.split(/(\e\[[\d;]*m)/)
@@ -82,7 +85,8 @@ class Renderer
     bg_fill = bg_color[:fill]
     padx = opts[:pad_x] || 0
     pady = opts[:pad_y] || 0
-    keep_indent = opts[:keep_indent] || false
+    keep_indent = opts[:keep_indent]
+    word_wrap = opts[:word_wrap]
 
     width -= padx * 2
     lines = []
@@ -114,25 +118,59 @@ class Renderer
         next
       end
 
-      chunk.each_char do |char|
-        # If end of line
-        if count == width || char == "\n"
-          # fill with bg color
-          line += " " * (width - count + padx) if bg_fill
-          # Reset styles at end of line (for future columns)
-          line += "\e[0m"
-          lines << line
-          # Reset new line, with undergoing style & opts styles
-          line = seq_stack.reverse.join + bg_seq + (" " * padx)
-          count = 0
-        end
-        next if char == "\n"
-        unless keep_indent
-          next if count == 0 && char == " "
+      # WORD WRAP #########################################
+
+      if word_wrap
+        words_and_spaces = chunk.split(/\b/).map { |w| w.match?(/\w/) ? w : w.chars }.flatten
+
+        words_and_spaces.each do |word|
+          # If end of line
+          if count == width || count + word.length > width || word == "\n"
+            # fill with bg color
+            line += " " * (width - count + padx) if bg_fill
+            # Reset styles at end of line (for future columns)
+            line += "\e[0m"
+            lines << line
+            # Reset new line, with undergoing style & opts styles
+            line = seq_stack.reverse.join + bg_seq + (" " * padx)
+            count = 0
+          end
+          # elsif word.match?(/\n/)
+          # pfffff
+          next if keep_indent && count.zero? && word == " "
+          if !keep_indent && count.zero? && word.start_with?(" ")
+            # word is not a real word. We could just remove its spaces
+            word.delete!(" ")
+          end
+
+          line += word
+          count += word.length
         end
 
-        line += char
-        count += 1
+      else
+
+        # NO WORD WRAP (works fine) #########################
+
+        chunk.each_char do |char|
+          # If end of line
+          if count == width || char == "\n"
+            # fill with bg color
+            line += " " * (width - count + padx) if bg_fill
+            # Reset styles at end of line (for future columns)
+            line += "\e[0m"
+            lines << line
+            # Reset new line, with undergoing style & opts styles
+            line = seq_stack.reverse.join + bg_seq + (" " * padx)
+            count = 0
+          end
+          next if char == "\n"
+          unless keep_indent
+            next if count == 0 && char == " "
+          end
+
+          line += char
+          count += 1
+        end
       end
     end
 

@@ -24,10 +24,13 @@ class MdDoc
 
   def render_lines
     @chunks.map do |chunk|
-      next @rdr.send(chunk[:type], chunk[:lang], chunk[:content]) if chunk[:type] == :codeblock
-      next @rdr.send(chunk[:type]) if chunk[:type] == :separator
-
-      @rdr.send(chunk[:type], chunk[:content])
+      if chunk[:type] == :codeblock
+        @rdr.send(chunk[:type], chunk[:lang], chunk[:content])
+      elsif chunk[:type] == :separator
+        @rdr.send(chunk[:type])
+      else
+        @rdr.send(chunk[:type], chunk[:content])
+      end
     end
   end
 

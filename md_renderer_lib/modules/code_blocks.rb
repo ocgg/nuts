@@ -24,7 +24,7 @@ module CodeBlocks
     bgcol = esc_seq_from(CODE_BG)
     opts = {
       bg_color: {seq: bgcol, fill: true},
-      pad_x: 2,
+      pad_x: 1,
       keep_indent: true
     }
     code = to_lines_with_style(code, **opts).join("\n")
