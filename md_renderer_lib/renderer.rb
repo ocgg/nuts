@@ -87,7 +87,7 @@ class Renderer
     chunks.each do |chunk|
       next if chunk.empty?
 
-      is_reset = chunk.match?(/\e\[0m/)
+      is_reset = chunk == "\e[0m"
       is_seq = chunk.match?(/\e\[[\d;]*m/)
 
       if is_reset
