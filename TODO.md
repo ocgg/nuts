@@ -6,8 +6,10 @@
 
 ## TODO NEXT
 
+- lists: word wrap cassé
+- lists: longue lignes: ça se décale...
 - H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/
-- Les inline styles imbriqués peuvent être foireux à cause de `\e[0m`
+- Les inline styles imbriqués peuvent être foireux à cause de `\e[0m` (mettre en place un style stack)
 - \&nbsp; à la place du dernier espace avant le dernier char d'un titre
 - rendu de listes
   - ordonnée
@@ -18,6 +20,7 @@
 - Gérer les images avec des liens
 - liens vers fichiers ?
 - meilleurs tableaux
+- inline styles dans les tableaux
 
 ## BUGFIXES TODO
 
