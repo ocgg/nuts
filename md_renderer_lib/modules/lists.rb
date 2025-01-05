@@ -15,7 +15,7 @@ module Lists
     lines.map! do |line|
       line = case line
       when /(^\s?- )/ then line.gsub($1, "• ")
-      when /^(\s{2,3})(- )/ then line.gsub("#{$1}#{$2}", "  ◦ ")
+      when /^(\s{2,3}- )/ then line.gsub($1, "  ◦ ")
       when /^(\s{4,})(- )/
         indent_levels = $1.length / 2
         indent = "  " * indent_levels
@@ -27,8 +27,7 @@ module Lists
       end
       prev_line = line
       "  #{line}"
-    end
-    lines.join("\n")
+    end.join("\n")
   end
 
   private
