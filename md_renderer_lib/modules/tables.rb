@@ -1,25 +1,28 @@
-require 'tty-table'
-require_relative 'styles'
+require "tty-table"
+require_relative "styles"
 
 module Tables
   include Styles
 
+  def table(str) = render_table(str)
+
   def separator_indexes_from(header_lines)
     if header_lines.index(0)
-      header_lines.select(&:positive?).map.with_index { |o, i| o - (i+2) }
+      header_lines.select(&:positive?).map.with_index { |o, i| o - (i + 2) }
     else
-      header_lines.map.with_index { |o, i| o - (i+1) }
+      header_lines.map.with_index { |o, i| o - (i + 1) }
     end
   end
 
   def render_table(str)
-    arr = str.split("\n").map {|row| row.split('|').map(&:strip)[1..]}
-    header_line_indexes =  arr.map.with_index { |row, i| row.join.match(/:?-+:?/) && i }.compact
+    arr = str.split("\n").map { |row| row.split("|").map(&:strip)[1..] }
+    header_line_indexes = arr.map.with_index { |row, i| row.join.match(/:?-+:?/) && i }.compact
     alignments = header_line_indexes.reverse.map { |i| arr.delete_at(i) }.flatten
     alignments.map! do |s|
-      if s.start_with?(':') && s.end_with?(':') then :center
-      elsif s.end_with?(':') then :right
-      else :left
+      if s.start_with?(":") && s.end_with?(":") then :center
+      elsif s.end_with?(":") then :right
+      else
+        :left
       end
     end
 
@@ -36,6 +39,6 @@ module Tables
       # column_widths: [nil, 20, 10, 40, 20]
     }
 
-    "#{table.render(:unicode, table_options)}"
+    table.render(:unicode, table_options)
   end
 end

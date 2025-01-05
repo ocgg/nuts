@@ -5,8 +5,8 @@ module InlineBlocks
 
   def regex_for_inline_block(*syms)
     regs = syms.map do |sym|
-      open = sym.gsub(/./) { |char| "\\" + char }
-      close = sym.reverse.gsub(/./) { |char| "\\" + char }
+      open = sym.gsub(/./) { |char| "\\#{char}" }
+      close = sym.reverse.gsub(/./) { |char| "\\#{char}" }
       /(?:\w#{open}\w|\W#{open}\w|\W#{open}\W).*?(?:\w#{close}\w|\w#{close}\W|\W#{close}\W|(?:\w|\W)#{close}$)/
     end
     /(#{regs.join("|")})/
@@ -37,7 +37,7 @@ module InlineBlocks
 
   def italic(str) = inline_block(str, ["*", "_"], ITALIC)
 
-  def inline_codeblock(str) = inline_block(str, ["`"], Styles::RGB_BG_DARKGRAY)
+  def inline_codeblock(str) = inline_block(str, ["`"], RGB_BG_DARKGRAY)
 
   def render_inline_blocks(str)
     str = bold_italic(str)

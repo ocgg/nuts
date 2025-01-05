@@ -13,16 +13,6 @@ class Renderer
   include CodeBlocks
   include Lists
 
-  def title(str)
-    if str.start_with?("###### ") then h6(str)
-    elsif str.start_with?("##### ") then h5(str)
-    elsif str.start_with?("#### ") then h4(str)
-    elsif str.start_with?("### ") then h3(str)
-    elsif str.start_with?("## ") then h2(str)
-    elsif str.start_with?("# ") then h1(str)
-    end
-  end
-
   def paragraph(str)
     str = str.strip.tr("\n", " ").squeeze(" ")
     str = render_inline_blocks(str)
@@ -30,14 +20,6 @@ class Renderer
   end
 
   def separator = render_txt("━" * TERM_WIDTH, RGB_GRAY)
-
-  def table(str) = render_table(str)
-
-  def codeblock(lang, content) = render_codeblock(lang, content)
-
-  def unord_list(str)
-    render_unord_list(str)
-  end
 
   def statline(filepath, last_modified)
     statline = "#{filepath} (#{last_modified})"

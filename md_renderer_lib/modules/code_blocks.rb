@@ -3,6 +3,8 @@ require_relative "styles"
 module CodeBlocks
   include Styles
 
+  def codeblock(lang, content) = render_codeblock(lang, content)
+
   def codeblock_separator(width: TERM_WIDTH, lang: nil)
     return render_txt("▀" * width, CODE_COL) if lang.nil?
 
