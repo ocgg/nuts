@@ -1,15 +1,21 @@
+- 1.mdfile est récupérer par MdDoc
+- 2.mdfile est formatté en chunks par Parser
+- 3.les chunks sont stylisés par Renderer
+
 - lastopened: checks
 - divers input checks (new, ..)
 
 - pack: empaqueter les notes en db sqlite
 - unpack: créer les fichiers à partir d'une db sqlite
 
+## TODO LA MAINTENANT
+
+- Rendu de liste: keep indent au retour à la ligne sur un point indenté
+- DU COUP => le bordel de to_lines_with_style à réécrire
+
 ## TODO NEXT
 
-- 1.mdfile est récupérer par MdDoc
-- 2.mdfile est formatté en chunks par Parser
-- 3.les chunks sont stylisés par Renderer
-
+- séparer le repo de md_renderer. C'est un projet à part entière
 - lists: word wrap cassé
 - lists: longue lignes: ça se décale...
 - H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/
