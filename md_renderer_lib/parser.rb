@@ -1,6 +1,16 @@
 class Parser
   attr_reader :chunks
 
+  REGEXS = {
+    title: /^\s{0,3}(?<title>\#{1,6} .+)$/,
+    separator: /^\s{0,3}(?<separator>[-*]{3,})$/,
+    table: /^\s{0,3}(?<table>(?:\|[^|\n]*\n?)+)/,
+    # TODO: theses should be simpler
+    codeblock: /^\s{0,3}(?<all>```(?<cb_lang>[^\n]*?)\n(?<cb_content>(?:.|\n)*?)```)/,
+    unord_list: /^\s{0,3}(?<unord_list>(?:\s*- .*(?:\n.+)*(?:\n+|$))+)/,
+    paragraph: /^\s{0,3}(?<paragraph>.*)/
+  }
+
   def initialize(raw)
     @chunks = parse(raw)
   end
@@ -15,17 +25,21 @@ class Parser
     {lang:, code:}
   end
 
+  # Receive a raw string possibly dirty markdown,
+  # Ouputs a list string with indented, squeezed, un-newlined lines.
   def format_list(list)
     list.squeeze("\n").split("\n").reduce("") do |acc, line|
       next line if acc.empty?
-      stripped = strip_and_squeeze(line)
-      line.match?(/^\s{2,}- /) ? "#{acc}\n#{line}" : "#{acc} #{stripped}"
-      stripped.match?(/^- /) ? "#{acc}\n#{line}" : "#{acc} #{stripped}"
-      if line.match?(/^- /) then "#{acc}\n#{stripped}"
-      elsif line.match?(/^\s{2,}- /) then "#{acc}\n  #{stripped}"
-      else
-        "#{acc} #{stripped}"
+      next "#{acc} #{strip_and_squeeze(line)}" unless line.match?(/(^\s*- )/)
+
+      indent_level = case line
+      when /^\s?- / then 0
+      when /^\s{2,3}- / then 1
+      when /^(\s{4,})- / then $1.length / 2
       end
+      indent = "  " * indent_level
+
+      "#{acc}\n#{indent}#{strip_and_squeeze(line)}"
     end
   end
 
@@ -52,14 +66,6 @@ class Parser
   # return an array of hashes representing chunks with keys :title & :content
   # TODO: fix time complexity
   def parse(raw)
-    regexs = {
-      title: /^\s{0,3}(?<title>\#{1,6} .+)$/,
-      separator: /^\s{0,3}(?<separator>[-*]{3,})$/,
-      table: /^\s{0,3}(?<table>(?:\|[^|\n]*\n?)+)/,
-      codeblock: /^\s{0,3}(?<all>```(?<cb_lang>[^\n]*?)\n(?<cb_content>(?:.|\n)*?)```)/,
-      unord_list: /^\s{0,3}(?<unord_list>(?:\s*- .*(?:\n.+)*(?:\n+|$))+)/,
-      paragraph: /^\s{0,3}(?<paragraph>.*)/
-    }
     types = [
       :title,
       :separator,
@@ -70,7 +76,7 @@ class Parser
       :unord_list,
       :paragraph
     ]
-    raw.scan(/#{regexs.values.join("|")}/).map do |data|
+    raw.scan(/#{REGEXS.values.join("|")}/).map do |data|
       # find index of non-nil data
       id = data.find_index { |match| !match.nil? }
       type = types[id]

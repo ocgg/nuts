@@ -1,2 +1,22 @@
+Ceci est un paragraphe
 
-Another one, with _some italic **with** underscore_, but also some italics with *asterisks*. That's not all: here is some **bold asterisk text**, and also __bold underscore text__. To finish, we indeed want to check ***triple asterisk bold italic text***, or **_same with double asterisk-underscore_**, or _**underscore and asterisks**_, or ___triple underscores___. Oh, and I forgot ~~stroke text~~.
+- Ceci est une liste
+  -Ceci est concaténé à     la ligne précédente
+Ceci est concaténé à la ligne précédente,
+  -ça aussi
+- Ceci est la suite de la même liste
+- VOilà
+
+  - Cette sublist aussi ?
+    - subsublist?
+      - subsubsublist?
+        - subsubsublist? *blala* **blalaala**
+        bla     bla **_blala blalaala_** bla blala blalaala bla blala blalaala bla blala blalaala bla blala blalaala bla blala blalaala bla blala
+blalaala bla blala blalaala bla blala blalaala bla blala blalaala bla blala blalaala bla blala blalaala bla
+
+- La même liste
+
+blabla
+
+   - mais ça c'est juste une nouvelle liste
+
