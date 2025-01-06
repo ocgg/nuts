@@ -5,6 +5,8 @@ module Lists
 
   def unord_list(str) = render_unord_list(str)
 
+  private
+
   def render_unord_list(str)
     str = sanitize_list_string(str)
     str = render_inline_chunks(str)

@@ -6,6 +6,10 @@
 
 ## TODO NEXT
 
+- 1.mdfile est récupérer par MdDoc
+- 2.mdfile est formatté en chunks par Parser
+- 3.les chunks sont stylisés par Renderer
+
 - lists: word wrap cassé
 - lists: longue lignes: ça se décale...
 - H1 & h2 peuvent être sur 2 lignes avec /title\n=+/ ou /title\n-+/

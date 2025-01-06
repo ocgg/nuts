@@ -3,10 +3,6 @@ require_relative "styles"
 module InlineBlocks
   include Styles
 
-  #############################################################################
-  # REWRITE OF ALL THE MODULE. ALL ABOVE THIS COMMENT IS TO DELETE ############
-  #############################################################################
-
   # This was a good try.
   REGEXP = /
     # prefix

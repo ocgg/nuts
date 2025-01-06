@@ -13,6 +13,8 @@ module Titles
     end
   end
 
+  private
+
   def h1(str)
     upline = render_txt("┌#{"─" * (TERM_WIDTH - 2)}┐")
     downline = render_txt("└#{"─" * (TERM_WIDTH - 2)}┘")

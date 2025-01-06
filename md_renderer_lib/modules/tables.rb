@@ -6,6 +6,8 @@ module Tables
 
   def table(str) = render_table(str)
 
+  private
+
   def separator_indexes_from(header_lines)
     if header_lines.index(0)
       header_lines.select(&:positive?).map.with_index { |o, i| o - (i + 2) }
