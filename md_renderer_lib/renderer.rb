@@ -15,7 +15,7 @@ class Renderer
 
   def paragraph(str)
     str = str.strip.tr("\n", " ").squeeze(" ")
-    str = render_inline_blocks(str)
+    str = render_inline_chunks(str)
     to_lines_with_style(str, word_wrap: true).join("\n")
   end
 

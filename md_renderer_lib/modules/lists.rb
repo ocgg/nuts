@@ -7,7 +7,7 @@ module Lists
 
   def render_unord_list(str)
     str = sanitize_list_string(str)
-    str = render_inline_blocks(str)
+    str = render_inline_chunks(str)
     lines = to_lines_with_style(str, keep_indent: true, word_wrap: true)
 
     prev_line = ""

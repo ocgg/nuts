@@ -1,0 +1,2 @@
+
+Another one, with _some italic **with** underscore_, but also some italics with *asterisks*. That's not all: here is some **bold asterisk text**, and also __bold underscore text__. To finish, we indeed want to check ***triple asterisk bold italic text***, or **_same with double asterisk-underscore_**, or _**underscore and asterisks**_, or ___triple underscores___. Oh, and I forgot ~~stroke text~~.

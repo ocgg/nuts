@@ -3,47 +3,56 @@ require_relative "styles"
 module InlineBlocks
   include Styles
 
-  def regex_for_inline_block(*syms)
-    regs = syms.map do |sym|
-      open = sym.gsub(/./) { |char| "\\#{char}" }
-      close = sym.reverse.gsub(/./) { |char| "\\#{char}" }
-      /(?:\w#{open}\w|\W#{open}\w|\W#{open}\W).*?(?:\w#{close}\w|\w#{close}\W|\W#{close}\W|(?:\w|\W)#{close}$)/
+  #############################################################################
+  # REWRITE OF ALL THE MODULE. ALL ABOVE THIS COMMENT IS TO DELETE ############
+  #############################################################################
+
+  # This was a good try.
+  REGEXP = /
+    # prefix
+    (?<=(?<beforebegin>\W))?
+    # opening tag
+    (?<open_tag>\*\*\*|___|\*\*|__|\*|_|`|~~|~)
+    # content
+    (?<content>
+      (?(<beforebegin>).|\w)
+      .*?
+      (?<beforeend>\w)?
+    )
+    # closing tag
+    (?<close_tag>\k<open_tag>)
+    # suffix
+    (?=(?(<beforeend>).|\W)|$)
+  /x
+
+  def delimiter_to_stylecode(delimiter)
+    case delimiter
+    when "***", "___" then [BOLD, ITALIC]
+    when "**", "__" then BOLD
+    when "*", "_" then ITALIC
+    when "~~", "~" then STRIKE
+    when "`" then Styles::CODE_BG
+    # Should never reach this line
+    else raise "Unknown delimiter '#{delimiter}'"
     end
-    /(#{regs.join("|")})/
   end
 
-  def inline_block(str, syms, *styles)
-    regexp = regex_for_inline_block(*syms)
-    spans = str.scan(regexp).flatten
+  def render_inline_chunks(str, styles = [])
+    result = ""
+    REGEXP.match str
 
-    spans.each do |span|
-      signs = syms.join.chars.uniq
-      sym_length = syms.first.length
-      # The regex captures trailing char each side, except right if its $.
-      # 1 is for the trailing char, sym_length for the sign
-      span = span[1..(signs.include?(span[-1]) ? -1 : -2)]
-      text = span[sym_length...-sym_length]
+    match = $3
+    return str if match.nil?
 
-      str.gsub!(span, render_txt(text, *styles))
-    end
-    str
-  end
+    result += $`
+    style = delimiter_to_stylecode($2)
+    seq = esc_seq_from(style)
 
-  def bold_italic(str) = inline_block(str, ["***", "**_", "_**", "__*", "___"], BOLD, ITALIC)
+    suffix = styles.empty? ? NOCOLOR : "#{NOCOLOR}#{esc_seq_from(styles)}"
+    styles << style
 
-  def bold(str) = inline_block(str, ["**", "__"], BOLD)
+    parsed = "#{seq}#{render_inline_chunks(match, styles)}#{suffix}"
 
-  def stroke(str) = inline_block(str, ["~~"], STRIKE)
-
-  def italic(str) = inline_block(str, ["*", "_"], ITALIC)
-
-  def inline_codeblock(str) = inline_block(str, ["`"], RGB_BG_DARKGRAY)
-
-  def render_inline_blocks(str)
-    str = bold_italic(str)
-    str = bold(str)
-    str = stroke(str)
-    str = italic(str)
-    inline_codeblock(str)
+    "#{result}#{parsed}#{render_inline_chunks($')}"
   end
 end
