@@ -1,12 +1,22 @@
-- 1.mdfile est récupérer par MdDoc
-- 2.mdfile est formatté en chunks par Parser
-- 3.les chunks sont stylisés par Renderer
+# Md Cli Renderer
 
-- lastopened: checks
-- divers input checks (new, ..)
+Restructurer l'app comme suit:
 
-- pack: empaqueter les notes en db sqlite
-- unpack: créer les fichiers à partir d'une db sqlite
+- Main class (= controller), le point d'entrée
+- Main envoie le fichier brut au Parser qui retourne un MdDocument
+- MdDocument est globalement un array de Block (paragraphe, list, text, title etc.)
+
+  - Chaque Block a un type (title/list), un sous-type (h3/unordered), (plus?), un contenu
+  - Le contenu est un array de Text, ou un hash (dans le cas d'une liste: arborescence)
+  - Chaque Text a des styles (normal / bold, italic) et un contenu
+
+- Main envoie le MdDocument au Renderer qui:
+
+  - Gère le rendu chaque type de Block
+  - Incorpore les séquences d'échappement dans les Text
+  - Retourne un array de string à Main
+
+- Main affiche les lignes selon les options passées en ligne de commande
 
 ## TODO LA MAINTENANT
 
@@ -23,8 +33,11 @@
 - inline codeblock avec backticks dedans: ``inline_code(`with backticks`);``
 - meilleurs tableaux
 - inline styles dans les tableaux
+- lastopened: checks
+- divers input checks (new, ..)
 
 ### MD features
+
 - rendu de listes
   - ordonnée
   - checkboxes
@@ -51,3 +64,5 @@
 ## TODO DANS TRÈS LONGTEMPS VOIRE JAMAIS
 
 - Implémenter HTML basique
+- pack: empaqueter dans un one file (db sqlite?)
+- unpack: créer les notes à partir de ce fichier
